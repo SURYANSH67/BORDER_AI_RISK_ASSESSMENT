@@ -1,0 +1,6 @@
+zone_id,temperature,humidity,pressure,visibility,wind_speed,clouds,weather,visibility_risk
+Z1,14.94,18,1018,10000,1.11,74,Clouds,Low
+Z2,14.95,22,1018,10000,2.51,79,Clouds,Low
+Z3,12.58,33,1019,10000,1.83,73,Clouds,Low
+Z4,-0.94,47,1020,10000,0.5,63,Clouds,Low
+Z5,-3.95,56,1022,10000,1.73,68,Clouds,Low

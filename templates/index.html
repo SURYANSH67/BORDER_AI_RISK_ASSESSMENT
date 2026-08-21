@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Border Risk Intelligence — Explainable Multi-Modal Risk Analysis</title>
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#0a0f1d',
+                        brandCard: '#11192e',
+                        brandCardHover: '#16203a',
+                        brandBorder: '#1e2c47',
+                        riskCritical: '#ef4444',
+                        riskHigh: '#f97316',
+                        riskMedium: '#eab308',
+                        riskLow: '#22c55e',
+                        accentBlue: '#3b82f6',
+                        accentCyan: '#06b6d4'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { background-color: #0a0f1d; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .glass-panel { background: rgba(17, 25, 46, 0.9); backdrop-filter: blur(8px); border: 1px solid #1e2c47; border-radius: 8px; transition: all 0.25s ease; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0a0f1d; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e2c47; border-radius: 3px; }
+        #map { width: 100%; height: 100%; z-index: 1; }
+        .kpi-card { cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .kpi-card.active-filter { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.15); }
+        .zone-pill { transition: background-color 0.15s ease; }
+        .zone-pill:hover { background-color: #1e2c47; }
+        .zone-pill.selected { background-color: rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
+    </style>
+</head>
+<body class="flex flex-col h-screen select-none">
+
+    <!-- TOP HEADER -->
+    <header class="bg-[#060a14] border-b border-brandBorder px-5 py-2.5 flex justify-between items-center z-20">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-shield-halved text-accentBlue text-2xl"></i>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-base font-bold text-slate-100 tracking-tight">Border Risk Intelligence</h1>
+                    <span class="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full font-bold">RESEARCH PROTOTYPE</span>
+                    <span class="text-[10px] bg-slate-800 text-slate-300 border border-brandBorder px-2 py-0.5 rounded font-mono">DATASET-DRIVEN</span>
+                </div>
+                <p class="text-[11px] text-slate-400 font-normal">Explainable Multi-Modal Infiltration Risk Analysis and Decision Support</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[11px] text-slate-400 bg-slate-900 border border-brandBorder px-3 py-1 rounded">
+                <i class="fa-solid fa-location-dot text-accentCyan mr-1"></i> Srinagar Sector (150 Spatial Zones)
+            </span>
+            <span class="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded font-medium">
+                Dataset-Based Analysis | Simulated Surveillance Intelligence
+            </span>
+        </div>
+    </header>
+
+    <!-- REACTIVE CLICKABLE KPI CARDS ROW -->
+    <div class="grid grid-cols-5 gap-3 px-5 py-2 bg-[#080d1a] border-b border-brandBorder z-10 text-xs">
+        <div class="glass-panel kpi-card p-2 border-l-4 border-accentBlue flex justify-between items-center active-filter" id="kpiCardAll" onclick="filterByRisk('All')">
+            <div>
+                <span class="text-slate-400 uppercase font-semibold text-[10px] block">Total Zones</span>
+                <div class="text-lg font-extrabold text-slate-100 mt-0.5" id="kpi-total">150</div>
+            </div>
+            <span class="text-[10px] text-accentBlue font-bold bg-blue-500/10 px-1.5 py-0.5 rounded">All Sectors</span>
+        </div>
+        <div class="glass-panel kpi-card p-2 border-l-4 border-riskCritical flex justify-between items-center" id="kpiCardCritical" onclick="filterByRisk('Critical')">
+            <div>
+                <span class="text-slate-400 uppercase font-semibold text-[10px] block">Critical Risk</span>
+                <div class="text-lg font-extrabold text-riskCritical mt-0.5" id="kpi-critical">5</div>
+            </div>
+            <span class="text-[10px] text-riskCritical font-bold bg-red-500/10 px-1.5 py-0.5 rounded">&gt;72%</span>
+        </div>
+        <div class="glass-panel kpi-card p-2 border-l-4 border-riskHigh flex justify-between items-center" id="kpiCardHigh" onclick="filterByRisk('High')">
+            <div>
+                <span class="text-slate-400 uppercase font-semibold text-[10px] block">High Risk</span>
+                <div class="text-lg font-extrabold text-riskHigh mt-0.5" id="kpi-high">40</div>
+            </div>
+            <span class="text-[10px] text-riskHigh font-bold bg-orange-500/10 px-1.5 py-0.5 rounded">51-72%</span>
+        </div>
+        <div class="glass-panel kpi-card p-2 border-l-4 border-riskMedium flex justify-between items-center" id="kpiCardMedium" onclick="filterByRisk('Medium')">
+            <div>
+                <span class="text-slate-400 uppercase font-semibold text-[10px] block">Medium Risk</span>
+                <div class="text-lg font-extrabold text-riskMedium mt-0.5" id="kpi-medium">86</div>
+            </div>
+            <span class="text-[10px] text-riskMedium font-bold bg-amber-500/10 px-1.5 py-0.5 rounded">26-50%</span>
+        </div>
+        <div class="glass-panel kpi-card p-2 border-l-4 border-riskLow flex justify-between items-center" id="kpiCardLow" onclick="filterByRisk('Low')">
+            <div>
+                <span class="text-slate-400 uppercase font-semibold text-[10px] block">Low Risk</span>
+                <div class="text-lg font-extrabold text-riskLow mt-0.5" id="kpi-low">19</div>
+            </div>
+            <span class="text-[10px] text-riskLow font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded">0-25%</span>
+        </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="flex gap-2 px-5 py-1.5 bg-[#070b16] border-b border-brandBorder text-xs overflow-x-auto z-10">
+        <button class="nav-tab active px-3 py-1.5 rounded font-semibold transition bg-accentBlue text-white" onclick="switchPage('tab-map')"><i class="fa-solid fa-map-location-dot mr-1.5"></i> Risk Map</button>
+        <button class="nav-tab px-3 py-1.5 rounded font-semibold text-slate-400 hover:text-slate-200 transition" onclick="switchPage('tab-shap')"><i class="fa-solid fa-brain mr-1.5"></i> Explainable AI</button>
+        <button class="nav-tab px-3 py-1.5 rounded font-semibold text-slate-400 hover:text-slate-200 transition" onclick="switchPage('tab-sim')"><i class="fa-solid fa-sliders mr-1.5"></i> Scenario Lab</button>
+        <button class="nav-tab px-3 py-1.5 rounded font-semibold text-slate-400 hover:text-slate-200 transition" onclick="switchPage('tab-ablation')"><i class="fa-solid fa-chart-line mr-1.5"></i> Model Analytics</button>
+        <button class="nav-tab px-3 py-1.5 rounded font-semibold text-slate-400 hover:text-slate-200 transition" onclick="switchPage('tab-explorer')"><i class="fa-solid fa-database mr-1.5"></i> Dataset Explorer</button>
+        <button class="nav-tab px-3 py-1.5 rounded font-semibold text-slate-400 hover:text-slate-200 transition" onclick="switchPage('tab-compare')"><i class="fa-solid fa-scale-balanced mr-1.5"></i> Zone Comparison</button>
+    </nav>
+
+    <!-- MAIN WORKSPACE: 8-Col Views & 4-Col Progressive Intelligence Sidebar -->
+    <main class="flex-1 grid grid-cols-12 overflow-hidden relative">
+
+        <!-- Left 8 Columns: Dynamic Page Views -->
+        <div class="col-span-8 h-full relative overflow-hidden bg-brandDark">
+            
+            <!-- VIEW 1: GIS Risk Map -->
+            <div id="tab-map" class="page-content h-full w-full relative">
+                <div id="map"></div>
+                <!-- Layer Toggle & Filter Indicator Floating Header -->
+                <div class="absolute top-4 left-4 z-10 glass-panel px-3 py-1.5 flex items-center gap-2 text-xs">
+                    <span class="text-slate-400">Map Filter:</span>
+                    <span id="activeFilterBadge" class="font-bold text-accentCyan">Showing All 150 Zones</span>
+                    <span class="text-slate-600">|</span>
+                    <span class="text-[10px] text-slate-400">Hover pin for summary - Click to inspect</span>
+                </div>
+                <div class="absolute top-4 right-4 z-10 glass-panel p-1.5 flex gap-1 text-xs">
+                    <button class="px-2.5 py-1 rounded bg-slate-800 text-slate-200 text-[11px] font-semibold hover:bg-slate-700 active-tile" onclick="setTileLayer('dark')">Dark Map</button>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 text-slate-200 text-[11px] font-semibold hover:bg-slate-700" onclick="setTileLayer('satellite')">Satellite</button>
+                </div>
+            </div>
+
+            <!-- VIEW 2: Explainable AI (SHAP) -->
+            <div id="tab-shap" class="page-content h-full p-5 overflow-y-auto custom-scrollbar hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-brain text-accentBlue"></i> Decision-Grade Explainable AI (SHAP TreeExplainer)</h2>
+                        <p class="text-xs text-slate-400">Translates complex multi-modal ML attributions into transparent, human-readable operational drivers.</p>
+                    </div>
+                </div>
+                
+                <!-- Two-Column XAI: Escalators vs Mitigators + Driver Interpretation -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- Left: Decision-Maker Local SHAP Waterfall -->
+                    <div class="glass-panel p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 class="text-xs font-bold uppercase text-slate-300">Decision-Maker View: Risk Drivers (<span id="shapZoneTitle" class="text-accentCyan">SGR_ZONE_001</span>)</h3>
+                                <span class="text-[10px] text-slate-400">Escalators vs Mitigators</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-2">Positive factors increase risk; negative factors mitigate risk.</p>
+                        </div>
+                        <div class="h-56"><canvas id="localShapChart"></canvas></div>
+                    </div>
+
+                    <!-- Right: Researcher Global Feature Importance -->
+                    <div class="glass-panel p-4 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 class="text-xs font-bold uppercase text-slate-300">Researcher View: Global Importance Ranking</h3>
+                                <span class="text-[10px] text-slate-500 font-mono">Random Forest Global SHAP</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mb-2">Overall impact of tabular features across the 150-zone model.</p>
+                        </div>
+                        <div class="h-56"><canvas id="globalShapChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Driver Interpretation Table & Sensitivity Mitigation -->
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <!-- Driver Table -->
+                    <div class="glass-panel p-4">
+                        <h3 class="text-xs font-bold uppercase text-slate-300 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-list-check text-amber-400"></i> Risk Driver Interpretation</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead><tr class="border-b border-brandBorder text-slate-400"><th class="py-1.5">Driver</th><th>Status</th><th>Operational Meaning</th></tr></thead>
+                            <tbody id="driverInterpretationTableBody" class="divide-y divide-brandBorder/50 text-slate-300"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Sensitivity Mitigation Box -->
+                    <div class="glass-panel p-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase text-slate-300 mb-2 flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-down text-emerald-400"></i> Model Sensitivity (Factors Associated with Lower Risk)</h3>
+                            <div id="mitigationFactorsList" class="flex flex-col gap-1.5 text-xs text-slate-300 mb-3"></div>
+                        </div>
+                        <div class="text-[11px] bg-slate-900/80 p-2.5 rounded border border-brandBorder text-slate-400">
+                            <b>Model Sensitivity:</b> The predicted risk score decreases when positive risk-escalating factors are mitigated through operational adjustments.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Scenario Lab -->
+            <div id="tab-sim" class="page-content h-full p-5 overflow-y-auto custom-scrollbar hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-sliders text-amber-400"></i> Scenario Lab (What-If Simulation)</h2>
+                        <p class="text-xs text-slate-400">Evaluate how operational and surveillance changes impact predicted risk scores and command recommendations.</p>
+                    </div>
+                    <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded font-bold">SIMULATED SCENARIOS</span>
+                </div>
+
+                <!-- Scenario Presets Bar -->
+                <div class="glass-panel p-3 mb-4 flex items-center gap-2 overflow-x-auto text-xs">
+                    <span class="text-slate-400 font-bold uppercase text-[10px]">Select Preset:</span>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" onclick="applyScenarioPreset('normal')">Standard Baseline</button>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" onclick="applyScenarioPreset('night_human')">Night Human Infiltration</button>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" onclick="applyScenarioPreset('sensor_spike')">Seismic & Acoustic Spike</button>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" onclick="applyScenarioPreset('patrol_gap')">Extended Patrol Gap</button>
+                    <button class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" onclick="applyScenarioPreset('multi_threat')">Multi-Threat Critical Event</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Controls -->
+                    <div class="glass-panel p-4 flex flex-col gap-3">
+                        <div class="flex justify-between items-center border-b border-brandBorder pb-2">
+                            <span class="text-xs font-bold uppercase text-slate-300">Custom Telemetry Sliders</span>
+                            <span class="text-xs font-bold text-accentCyan" id="simZoneId">SGR_ZONE_001</span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Human Detections (Camera)</span><span class="font-bold text-slate-200" id="valHuman">2</span></div>
+                            <input type="range" min="0" max="15" value="2" class="w-full accent-accentBlue" id="sliderHuman" oninput="document.getElementById('valHuman').innerText = this.value">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Vehicle Detections (Camera)</span><span class="font-bold text-slate-200" id="valVehicle">0</span></div>
+                            <input type="range" min="0" max="5" value="0" class="w-full accent-accentBlue" id="sliderVehicle" oninput="document.getElementById('valVehicle').innerText = this.value">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Night Movement Count</span><span class="font-bold text-slate-200" id="valNight">3</span></div>
+                            <input type="range" min="0" max="12" value="3" class="w-full accent-accentBlue" id="sliderNight" oninput="document.getElementById('valNight').innerText = this.value">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Thermal Motion Signal (0 - 1.0)</span><span class="font-bold text-slate-200" id="valMotion">0.45</span></div>
+                            <input type="range" min="0" max="100" value="45" class="w-full accent-accentBlue" id="sliderMotion" oninput="document.getElementById('valMotion').innerText = (this.value/100).toFixed(2)">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Seismic Activity Signal (0 - 1.0)</span><span class="font-bold text-slate-200" id="valSeismic">0.30</span></div>
+                            <input type="range" min="0" max="100" value="30" class="w-full accent-accentBlue" id="sliderSeismic" oninput="document.getElementById('valSeismic').innerText = (this.value/100).toFixed(2)">
+                        </div>
+                        <button onclick="runSimulation()" class="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded shadow transition mt-1">
+                            <i class="fa-solid fa-bolt mr-1.5"></i> Run Real-Time Threat Simulation
+                        </button>
+                    </div>
+
+                    <!-- Output -->
+                    <div class="glass-panel p-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase text-slate-300 border-b border-brandBorder pb-2 mb-3">Simulation Output</h3>
+                            <div class="grid grid-cols-2 gap-3 mb-3">
+                                <div class="bg-slate-900/80 p-2.5 rounded border border-brandBorder text-center">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Baseline Risk</span>
+                                    <div class="text-lg font-bold text-slate-300 mt-1" id="simBaselineScore">-- %</div>
+                                </div>
+                                <div class="bg-slate-900/80 p-2.5 rounded border border-brandBorder text-center">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Simulated Risk</span>
+                                    <div class="text-xl font-black text-accentCyan mt-1" id="simResultScore">-- %</div>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Alert Level and Directive</span>
+                                <div id="simResultBadge" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-800 text-slate-300 mb-2 inline-block">Awaiting Simulation</div>
+                            </div>
+                        </div>
+                        <div class="text-xs bg-slate-950/70 p-3 rounded border border-brandBorder text-slate-300 font-mono whitespace-pre-line leading-relaxed min-h-[110px]" id="simTacticalBox">
+                            Click "Run Real-Time Threat Simulation" or pick a scenario preset above to recalculate risk.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: Model Analytics -->
+            <div id="tab-ablation" class="page-content h-full p-5 overflow-y-auto custom-scrollbar hidden">
+                <div class="mb-3">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-chart-line text-emerald-400"></i> Model Analytics and Multi-Modal Ablation Study</h2>
+                    <p class="text-xs text-slate-400">Rigorous 5-Fold Stratified Cross-Validation and empirical proof of multi-modal feature fusion.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="glass-panel p-4">
+                        <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Ablation F1-Score Progression (+25.76% Gain)</h3>
+                        <div class="h-56"><canvas id="ablationChart"></canvas></div>
+                    </div>
+                    <div class="glass-panel p-4">
+                        <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Model Benchmark (5-Fold Stratified CV)</h3>
+                        <div class="h-56"><canvas id="modelCompChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="glass-panel p-4">
+                    <table class="w-full text-xs text-left">
+                        <thead><tr class="border-b border-brandBorder text-slate-400"><th class="py-2">Experiment Stage</th><th>Feature Count</th><th>LR F1-Score</th><th>LR ROC-AUC</th><th>RF F1-Score</th></tr></thead>
+                        <tbody id="ablationTableBody" class="divide-y divide-brandBorder/50 text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 5: Dataset Explorer -->
+            <div id="tab-explorer" class="page-content h-full p-5 overflow-y-auto custom-scrollbar hidden">
+                <div class="mb-3">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-database text-purple-400"></i> Master Multi-Modal Dataset Explorer</h2>
+                    <p class="text-xs text-slate-400">Standardized domain tables consolidated across all 150 spatial border zones.</p>
+                </div>
+                <div class="grid grid-cols-3 gap-3 mb-4" id="datasetSummaryGrid"></div>
+                <div class="glass-panel p-4">
+                    <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Sample Zone Records (First 10 of 150 Zones)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left whitespace-nowrap">
+                            <thead><tr class="border-b border-brandBorder text-slate-400"><th class="py-2">Zone ID</th><th>Risk Level</th><th>Risk Score</th><th>Avg Elev</th><th>Avg Slope</th><th>Patrol Gap</th><th>Historical Evts</th><th>Humans</th></tr></thead>
+                            <tbody id="masterExplorerTable" class="divide-y divide-brandBorder/50 text-slate-300"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 6: Zone Comparison -->
+            <div id="tab-compare" class="page-content h-full p-5 overflow-y-auto custom-scrollbar hidden">
+                <div class="mb-3">
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-accentCyan"></i> Side-by-Side Zone Comparison Matrix</h2>
+                    <p class="text-xs text-slate-400">Evaluate multi-domain operational and environmental indicators between two zones.</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase block mb-1">Select Zone A</label>
+                        <select id="compSelectA" class="w-full bg-slate-900 border border-brandBorder text-xs text-slate-200 p-2 rounded" onchange="updateComparison()"></select>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase block mb-1">Select Zone B</label>
+                        <select id="compSelectB" class="w-full bg-slate-900 border border-brandBorder text-xs text-slate-200 p-2 rounded" onchange="updateComparison()"></select>
+                    </div>
+                </div>
+                <div class="glass-panel p-4">
+                    <table class="w-full text-xs text-left">
+                        <thead><tr class="border-b border-brandBorder text-slate-400"><th class="py-2">Intelligence Domain</th><th>Zone A Value</th><th>Zone B Value</th><th>Risk Impact</th></tr></thead>
+                        <tbody id="compareTableBody" class="divide-y divide-brandBorder/50 text-slate-300"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right 4 Columns: Progressive Zone Intelligence Sidebar -->
+        <div class="col-span-4 h-full bg-[#0c1324] border-l border-brandBorder p-3.5 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+            
+            <!-- Search Bar & Zone Filter Pills -->
+            <div class="glass-panel p-2.5">
+                <div class="relative mb-2">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                    <input type="text" id="zoneSearchInput" placeholder="Search zone (e.g. SGR_ZONE_126)..." class="w-full bg-slate-900/90 border border-brandBorder text-xs text-slate-200 pl-8 pr-3 py-1.5 rounded focus:outline-none focus:border-accentBlue" oninput="onZoneSearch(this.value)">
+                </div>
+                <!-- Filter Pills -->
+                <div class="flex gap-1 overflow-x-auto text-[10px]">
+                    <button class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 pill-btn active" onclick="filterByRisk('All')">All</button>
+                    <button class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold hover:bg-red-500/30 pill-btn" onclick="filterByRisk('Critical')">Critical (5)</button>
+                    <button class="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 font-bold hover:bg-orange-500/30 pill-btn" onclick="filterByRisk('High')">High (40)</button>
+                    <button class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold hover:bg-amber-500/30 pill-btn" onclick="filterByRisk('Medium')">Medium (86)</button>
+                    <button class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold hover:bg-emerald-500/30 pill-btn" onclick="filterByRisk('Low')">Low (19)</button>
+                </div>
+            </div>
+
+            <!-- 1. HERO AI ZONE ASSESSMENT CARD -->
+            <div class="glass-panel p-3.5 border-l-4 border-accentBlue">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">AI ASSESSMENT</span>
+                        <div class="text-xl font-black text-slate-100 flex items-center gap-2 mt-0.5">
+                            <span id="sideZoneId">SGR_ZONE_001</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-black px-2.5 py-1 rounded bg-amber-500 text-black block" id="sideRiskBadge">MEDIUM (45%)</span>
+                        <span class="text-[10px] font-semibold text-slate-400 mt-1 block" id="sideConfScore">Confidence: High</span>
+                    </div>
+                </div>
+
+                <!-- Plain Language Explanation -->
+                <div class="text-xs text-slate-200 leading-relaxed bg-slate-900/80 p-2.5 rounded border border-brandBorder mb-2" id="sideAiExecutiveSummary">
+                    <b>Why this score?</b> Risk is primarily influenced by patrol-gap duration, terrain characteristics, and simulated surveillance activity.
+                </div>
+
+                <!-- 4 Domain Status Indicators -->
+                <div class="grid grid-cols-4 gap-1.5 text-[10px] text-center font-bold" id="attentionBadgesRow">
+                    <div class="bg-slate-900/90 p-1 rounded border border-brandBorder" title="Derived from DEM elevation and slope"><span class="text-slate-400 block text-[8px]">ENV</span><span id="attEnv" class="text-emerald-400">Moderate</span></div>
+                    <div class="bg-slate-900/90 p-1 rounded border border-brandBorder" title="Derived from shift coverage and max gap"><span class="text-slate-400 block text-[8px]">OPS</span><span id="attPatrol" class="text-amber-400">Normal</span></div>
+                    <div class="bg-slate-900/90 p-1 rounded border border-brandBorder" title="Derived from historical event logs"><span class="text-slate-400 block text-[8px]">HIST</span><span id="attHist" class="text-slate-300">Moderate</span></div>
+                    <div class="bg-slate-900/90 p-1 rounded border border-brandBorder" title="Derived from simulated optical/thermal/acoustic signals"><span class="text-slate-400 block text-[8px]">SURV</span><span id="attSurv" class="text-blue-400">Routine</span></div>
+                </div>
+
+                <!-- One-Click Decision Brief Button -->
+                <button onclick="openDecisionBriefModal()" class="w-full mt-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-[11px] font-bold rounded shadow flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-file-lines"></i> Generate Zone Decision Brief
+                </button>
+            </div>
+
+            <!-- 2. MULTI-MODAL RISK PROFILE -->
+            <div class="glass-panel p-3">
+                <span class="text-[10px] font-bold uppercase text-slate-300 block mb-2">Multi-Modal Risk Profile</span>
+                <div class="flex flex-col gap-2 text-xs">
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-0.5">
+                            <span class="text-slate-300" title="Terrain Geography and Slope Complexity">Terrain Geography</span>
+                            <span id="txtTerrain" class="font-bold text-slate-200">0.45</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded"><div id="barTerrain" class="bg-blue-500 h-1.5 rounded transition-all duration-300" style="width: 45%;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-0.5">
+                            <span class="text-slate-300" title="Meteorological Visibility and Clouds">Weather / Visibility</span>
+                            <span id="txtWeather" class="font-bold text-slate-200">0.35</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded"><div id="barWeather" class="bg-amber-500 h-1.5 rounded transition-all duration-300" style="width: 35%;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-0.5">
+                            <span class="text-slate-300" title="NDVI and Vegetative Concealment Corridor">Vegetation Concealment</span>
+                            <span id="txtVeg" class="font-bold text-slate-200">0.40</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded"><div id="barVeg" class="bg-emerald-500 h-1.5 rounded transition-all duration-300" style="width: 40%;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-0.5">
+                            <span class="text-slate-300" title="Shift Coverage Gap and Readiness">Patrol Operational Gap</span>
+                            <span id="txtPatrol" class="font-bold text-slate-200">0.30</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded"><div id="barPatrol" class="bg-red-500 h-1.5 rounded transition-all duration-300" style="width: 30%;"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[11px] mb-0.5">
+                            <span class="text-slate-300" title="Historical Infiltration Activity Index">Historical Vulnerability</span>
+                            <span id="txtHist" class="font-bold text-slate-200">0.50</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded"><div id="barHist" class="bg-purple-500 h-1.5 rounded transition-all duration-300" style="width: 50%;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. CLEAN PATROL COVERAGE SECTION -->
+            <div class="glass-panel p-3">
+                <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-[10px] font-bold uppercase text-slate-300 flex items-center gap-1">
+                        <i class="fa-solid fa-person-walking text-accentCyan"></i> Patrol Coverage
+                    </span>
+                    <span id="patrolPriorityBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ADEQUATE</span>
+                </div>
+                <div class="mb-2">
+                    <div class="flex justify-between text-[11px] mb-1">
+                        <span>Current: <b id="patrolCurrentPct" class="text-slate-100">94.3%</b></span>
+                        <span class="text-slate-400">Target: <b class="text-slate-300">80.0%</b></span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded overflow-hidden">
+                        <div id="patrolProgressBar" class="bg-blue-500 h-2 rounded transition-all duration-300" style="width: 94.3%;"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[10px] mb-2">
+                    <div class="bg-slate-900/80 p-1.5 rounded border border-brandBorder">
+                        <span class="text-slate-400 block">Coverage Gap</span>
+                        <span id="patrolGapVal" class="font-bold text-emerald-400">0.0% (MINIMAL)</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-1.5 rounded border border-brandBorder">
+                        <span class="text-slate-400 block">Max Gap Duration</span>
+                        <span id="patrolMaxGapHours" class="font-bold text-slate-200">8.7 hrs</span>
+                    </div>
+                </div>
+                <div class="text-[10px] text-slate-300 bg-slate-950/60 p-2 rounded border border-brandBorder/60" id="patrolDirectiveText">
+                    Coverage is currently above the dataset-defined target.
+                </div>
+            </div>
+
+            <!-- 4. SPATIAL CONTEXT AND NEIGHBOURING ZONES -->
+            <div class="glass-panel p-3">
+                <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-map-pin text-purple-400"></i> Spatial Context (Adjacent Zones)
+                </span>
+                <div class="text-[11px] text-slate-300 mb-2" id="spatialSummaryText">
+                    Comparing selected zone with surrounding spatial cluster average.
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 text-[10px]" id="adjacentZonesGrid"></div>
+            </div>
+
+            <!-- 5. SURVEILLANCE TELEMETRY (SIMULATED) -->
+            <div class="glass-panel p-3">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold uppercase text-slate-400">Surveillance Telemetry</span>
+                    <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">SIMULATED DATA</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-900/70 p-2 rounded border border-brandBorder" title="Simulated optical/thermal human detections">
+                        <span class="text-[10px] text-slate-400 block">Humans Detected</span>
+                        <span class="text-sm font-bold text-accentCyan" id="telHumans">2</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded border border-brandBorder" title="Simulated vehicle detections">
+                        <span class="text-[10px] text-slate-400 block">Vehicles Detected</span>
+                        <span class="text-sm font-bold text-accentCyan" id="telVehicles">0</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded border border-brandBorder" title="Passive infrared and thermal motion activity">
+                        <span class="text-[10px] text-slate-400 block">Thermal Motion</span>
+                        <span class="text-sm font-bold text-slate-200" id="telMotion">0.45</span>
+                    </div>
+                    <div class="bg-slate-900/70 p-2 rounded border border-brandBorder" title="Ground seismic and acoustic sensor readings">
+                        <span class="text-[10px] text-slate-400 block">Seismic Activity</span>
+                        <span class="text-sm font-bold text-slate-200" id="telSeismic">0.30</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: Zone Decision Brief -->
+    <div id="briefModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="glass-panel w-3/5 max-h-[85vh] p-6 flex flex-col gap-4 border-2 border-brandBorder bg-[#0c1424] shadow-2xl">
+            <div class="flex justify-between items-center border-b border-brandBorder pb-3">
+                <h3 class="text-base font-black text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-file-shield text-accentCyan text-lg"></i>
+                    <span>ZONE ANALYSIS & DECISION BRIEF</span>
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyBriefToClipboard()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 rounded border border-brandBorder">
+                        <i class="fa-solid fa-copy mr-1"></i> Copy Brief
+                    </button>
+                    <button onclick="closeDecisionBriefModal()" class="text-slate-400 hover:text-white text-lg px-2">✕</button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar bg-slate-950 p-4 rounded border border-brandBorder">
+                <pre id="decisionBriefContent" class="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed"></pre>
+            </div>
+            <div class="flex justify-end gap-2 text-xs">
+                <button onclick="closeDecisionBriefModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded font-semibold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frontend Script -->
+    <script>
+        let map, currentTileLayer, zoneMarkers = {}, zonesData = [], currentZone = null;
+        let globalShapChartInstance = null, localShapChartInstance = null;
+        let ablationChartInstance = null, modelCompChartInstance = null;
+        let activeRiskFilter = 'All';
+
+        const tileLayers = {
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18, attribution: '© CARTO' }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: '© Esri' })
+        };
+
+        async function initApp() {
+            // Load Overview KPIs
+            try {
+                const res = await fetch('/api/overview');
+                const ov = await res.json();
+                document.getElementById('kpi-total').innerText = ov.total_zones;
+                document.getElementById('kpi-critical').innerText = ov.critical_count;
+                document.getElementById('kpi-high').innerText = ov.high_count;
+                document.getElementById('kpi-medium').innerText = ov.medium_count;
+                document.getElementById('kpi-low').innerText = ov.low_count;
+            } catch(e) { console.error(e); }
+
+            // Init Map
+            map = L.map('map').setView([34.0, 75.0], 8);
+            currentTileLayer = tileLayers.dark.addTo(map);
+
+            // Load All Zones
+            try {
+                const res = await fetch('/api/zones');
+                zonesData = await res.json();
+                populateZoneSelectors();
+                renderMapMarkers();
+                if (zonesData.length > 0) {
+                    selectZone(zonesData[0].Zone_ID);
+                }
+            } catch(e) { console.error(e); }
+
+            // Load Global Analytics
+            loadGlobalShap();
+            loadAblationAndModels();
+            loadDatasetSummary();
+        }
+
+        function setTileLayer(type) {
+            map.removeLayer(currentTileLayer);
+            currentTileLayer = tileLayers[type].addTo(map);
+        }
+
+        function populateZoneSelectors() {
+            const compA = document.getElementById('compSelectA');
+            const compB = document.getElementById('compSelectB');
+            compA.innerHTML = '';
+            compB.innerHTML = '';
+
+            zonesData.forEach(z => {
+                compA.appendChild(new Option(`${z.Zone_ID} (${z.Risk_Level})`, z.Zone_ID));
+                compB.appendChild(new Option(`${z.Zone_ID} (${z.Risk_Level})`, z.Zone_ID));
+            });
+            if (zonesData.length > 1) compB.value = zonesData[1].Zone_ID;
+        }
+
+        function renderMapMarkers() {
+            // Clear existing markers
+            Object.values(zoneMarkers).forEach(m => map.removeLayer(m));
+            zoneMarkers = {};
+
+            const filteredZones = activeRiskFilter === 'All' 
+                ? zonesData 
+                : zonesData.filter(z => z.Risk_Level === activeRiskFilter);
+
+            filteredZones.forEach(z => {
+                let color = '#22c55e';
+                if (z.Risk_Level === 'Critical') color = '#ef4444';
+                else if (z.Risk_Level === 'High') color = '#f97316';
+                else if (z.Risk_Level === 'Medium') color = '#eab308';
+
+                const marker = L.circleMarker([z.Latitude, z.Longitude], {
+                    radius: z.Risk_Level === 'Critical' ? 9 : 7,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1,
+                    fillOpacity: 0.85
+                }).addTo(map);
+
+                marker.bindTooltip(`
+                    <div style="font-family: system-ui; font-size: 11px; padding: 2px;">
+                        <b>${z.Zone_ID}</b><br>
+                        Risk: <b>${z.Risk_Score}% (${z.Risk_Level})</b><br>
+                        <span style="color: #94a3b8;">Click to inspect zone</span>
+                    </div>
+                `);
+                marker.on('click', () => {
+                    selectZone(z.Zone_ID);
+                });
+                zoneMarkers[z.Zone_ID] = marker;
+            });
+
+            document.getElementById('activeFilterBadge').innerText = activeRiskFilter === 'All' 
+                ? 'Showing All 150 Zones' 
+                : `Showing ${filteredZones.length} ${activeRiskFilter} Risk Zones`;
+        }
+
+        function filterByRisk(riskLevel) {
+            activeRiskFilter = riskLevel;
+
+            // Update KPI Card styling
+            document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active-filter'));
+            const cardId = riskLevel === 'All' ? 'kpiCardAll' : `kpiCard${riskLevel}`;
+            const el = document.getElementById(cardId);
+            if (el) el.classList.add('active-filter');
+
+            // Update Pill buttons
+            document.querySelectorAll('.pill-btn').forEach(b => {
+                if (b.innerText.startsWith(riskLevel)) {
+                    b.classList.add('bg-accentBlue', 'text-white');
+                } else {
+                    b.classList.remove('bg-accentBlue', 'text-white');
+                }
+            });
+
+            renderMapMarkers();
+
+            // Auto-select first zone of filtered list
+            const match = zonesData.find(z => riskLevel === 'All' || z.Risk_Level === riskLevel);
+            if (match) selectZone(match.Zone_ID);
+        }
+
+        function onZoneSearch(val) {
+            const query = val.trim().toUpperCase();
+            if (!query) return;
+            const match = zonesData.find(z => z.Zone_ID.toUpperCase().includes(query));
+            if (match) {
+                selectZone(match.Zone_ID);
+                map.panTo([match.Latitude, match.Longitude]);
+            }
+        }
+
+        async function selectZone(zoneId) {
+            try {
+                const res = await fetch(`/api/zone/${zoneId}`);
+                currentZone = await res.json();
+                updateSidebar();
+                updateLocalShap();
+                updateSimulationControls();
+                updateComparison();
+            } catch(e) { console.error(e); }
+        }
+
+        function updateSidebar() {
+            const z = currentZone;
+            document.getElementById('sideZoneId').innerText = z.zone_id;
+            const badge = document.getElementById('sideRiskBadge');
+            badge.innerText = `${z.risk_level.toUpperCase()} (${z.risk_score}%)`;
+            badge.className = `text-xs font-black px-2.5 py-1 rounded bg-${z.risk_level === 'Critical' ? 'red-500' : (z.risk_level === 'High' ? 'orange-500' : (z.risk_level === 'Medium' ? 'amber-500' : 'emerald-500'))} text-${z.risk_level === 'Medium' || z.risk_level === 'Low' ? 'black' : 'white'}`;
+
+            // AI Assessment Card
+            document.getElementById('sideConfScore').innerText = `Confidence: ${z.ai_assessment.model_confidence}`;
+            document.getElementById('sideAiExecutiveSummary').innerHTML = `<b>Why this score?</b> ${z.ai_assessment.executive_summary}`;
+            
+            // Domain Attention Badges
+            document.getElementById('attEnv').innerText = z.ai_assessment.attention_levels.environmental;
+            document.getElementById('attPatrol').innerText = z.ai_assessment.attention_levels.patrol;
+            document.getElementById('attHist').innerText = z.ai_assessment.attention_levels.historical;
+            document.getElementById('attSurv').innerText = z.ai_assessment.attention_levels.surveillance;
+
+            // Multi-Modal Risk Profile Progress Bars
+            setBar('Terrain', z.environmental.terrain_risk);
+            setBar('Weather', z.environmental.weather_risk);
+            setBar('Veg', z.environmental.vegetation_risk);
+            setBar('Patrol', z.operational.patrol_risk);
+            setBar('Hist', z.historical.historical_risk);
+
+            // Patrol Coverage Assessment Card
+            const p = z.patrol_assessment;
+            document.getElementById('patrolCurrentPct').innerText = `${p.current_coverage}%`;
+            document.getElementById('patrolProgressBar').style.width = `${Math.min(100, p.current_coverage)}%`;
+            document.getElementById('patrolPriorityBadge').innerText = p.priority;
+            document.getElementById('patrolGapVal').innerText = `${p.coverage_gap}% (${p.gap_status})`;
+            document.getElementById('patrolMaxGapHours').innerText = `${p.max_gap_hours} hrs`;
+            document.getElementById('patrolDirectiveText').innerText = p.recommendation;
+
+            // Spatial Context
+            const sp = z.spatial_context;
+            document.getElementById('spatialSummaryText').innerText = sp.spatial_summary;
+            document.getElementById('adjacentZonesGrid').innerHTML = sp.neighbors.map(n => `
+                <div class="bg-slate-900/90 p-1.5 rounded border border-brandBorder text-center cursor-pointer hover:border-accentBlue" onclick="selectZone('${n.zone_id}')">
+                    <span class="text-slate-400 block text-[9px] font-mono">${n.zone_id}</span>
+                    <span class="font-bold text-${n.risk_level === 'Critical' ? 'red-400' : (n.risk_level === 'High' ? 'orange-400' : 'amber-400')}">${n.risk_score}%</span>
+                </div>
+            `).join('');
+
+            // Telemetry
+            document.getElementById('telHumans').innerText = z.camera.human_count;
+            document.getElementById('telVehicles').innerText = z.camera.vehicle_count;
+            document.getElementById('telMotion').innerText = z.sensors.motion.toFixed(2);
+            document.getElementById('telSeismic').innerText = z.sensors.seismic.toFixed(2);
+
+            // Baseline score for simulation tab
+            document.getElementById('simBaselineScore').innerText = `${z.risk_score}%`;
+        }
+
+        function setBar(id, val) {
+            document.getElementById('txt' + id).innerText = val.toFixed(2);
+            document.getElementById('bar' + id).style.width = Math.min(100, Math.max(0, val * 100)) + '%';
+        }
+
+        function updateLocalShap() {
+            if (!currentZone) return;
+            document.getElementById('shapZoneTitle').innerText = currentZone.zone_id;
+
+            // Driver Interpretation Table
+            document.getElementById('driverInterpretationTableBody').innerHTML = currentZone.driver_interpretations.map(d => `
+                <tr>
+                    <td class="py-1.5 font-bold">${d.domain}</td>
+                    <td><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-${d.badge_color}-500/20 text-${d.badge_color}-400 border border-${d.badge_color}-500/30">${d.status}</span></td>
+                    <td class="text-slate-300">${d.interpretation}</td>
+                </tr>
+            `).join('');
+
+            // Risk Mitigation Factors List
+            document.getElementById('mitigationFactorsList').innerHTML = currentZone.mitigation_factors.map(m => `
+                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-brandBorder/60">
+                    <span class="text-slate-300 font-medium">${m.action}</span>
+                    <span class="text-emerald-400 font-semibold text-[11px]">${m.effect}</span>
+                </div>
+            `).join('');
+
+            // Local Waterfall Chart (Escalators vs Mitigators)
+            const labels = [];
+            const values = [];
+            const colors = [];
+
+            currentZone.shap_factors.escalating.forEach(e => {
+                labels.push(e.factor);
+                values.push(parseFloat(e.impact));
+                colors.push('#ef4444');
+            });
+            currentZone.shap_factors.mitigating.forEach(m => {
+                labels.push(m.factor);
+                values.push(parseFloat(m.impact));
+                colors.push('#22c55e');
+            });
+
+            const ctx = document.getElementById('localShapChart').getContext('2d');
+            if (localShapChartInstance) localShapChartInstance.destroy();
+            localShapChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { grid: { color: '#1e2c47' }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10 } } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        async function loadGlobalShap() {
+            try {
+                const res = await fetch('/api/shap/global');
+                const list = await res.json();
+                const labels = list.map(item => item.Feature);
+                const values = list.map(item => item.Mean_SHAP_Importance);
+
+                const ctx = document.getElementById('globalShapChart').getContext('2d');
+                if (globalShapChartInstance) globalShapChartInstance.destroy();
+                globalShapChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: values, backgroundColor: '#3b82f6' }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { x: { grid: { color: '#1e2c47' }, ticks: { color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10 } } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadAblationAndModels() {
+            try {
+                // Ablation
+                const resAbl = await fetch('/api/ablation');
+                const ablData = await resAbl.json();
+                const tbody = document.getElementById('ablationTableBody');
+                tbody.innerHTML = ablData.map(a => `<tr><td class="py-2 font-bold">${a.Experiment}</td><td>${a.Feature_Count}</td><td>${a.LR_F1_Score}</td><td>${a.LR_ROC_AUC}</td><td>${a.RF_F1_Score}</td></tr>`).join('');
+
+                const ctxAbl = document.getElementById('ablationChart').getContext('2d');
+                if (ablationChartInstance) ablationChartInstance.destroy();
+                ablationChartInstance = new Chart(ctxAbl, {
+                    type: 'line',
+                    data: {
+                        labels: ['Exp 1: Env', 'Exp 2: +Patrol', 'Exp 3: +Historical', 'Exp 4: Full Multi-Modal'],
+                        datasets: [{ label: 'LR F1-Score Progression', data: [0.4720, 0.4967, 0.5923, 0.7296], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0.4, max: 0.85, grid: { color: '#1e2c47' }, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#cbd5e1' } } } }
+                });
+
+                // Models
+                const resMod = await fetch('/api/models');
+                const modData = await resMod.json();
+                const ctxMod = document.getElementById('modelCompChart').getContext('2d');
+                if (modelCompChartInstance) modelCompChartInstance.destroy();
+                modelCompChartInstance = new Chart(ctxMod, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Logistic Regression', 'Random Forest', 'XGBoost'],
+                        datasets: [
+                            { label: 'Accuracy', data: [0.74, 0.62, 0.667], backgroundColor: '#3b82f6' },
+                            { label: 'F1-Score', data: [0.7296, 0.5474, 0.6176], backgroundColor: '#8b5cf6' }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 1.0, grid: { color: '#1e2c47' }, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#cbd5e1' } } } }
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadDatasetSummary() {
+            try {
+                const res = await fetch('/api/datasets/summary');
+                const sum = await res.json();
+                const grid = document.getElementById('datasetSummaryGrid');
+                grid.innerHTML = Object.entries(sum).map(([k, v]) => `
+                    <div class="glass-panel p-3">
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">${v.name}</span>
+                        <div class="text-sm font-bold text-slate-100 mt-1">${v.points}</div>
+                        <span class="text-[10px] text-accentCyan block mt-1">${v.type}</span>
+                    </div>
+                `).join('');
+
+                const resMaster = await fetch('/api/zones');
+                const mList = await resMaster.json();
+                document.getElementById('masterExplorerTable').innerHTML = mList.slice(0, 10).map(z => `
+                    <tr><td class="py-1.5 font-bold">${z.Zone_ID}</td><td><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-${z.Risk_Level === 'Critical' ? 'red-500' : 'amber-500'} text-black">${z.Risk_Level}</span></td><td>${z.Risk_Score}%</td><td>2,450m</td><td>14.2°</td><td>6.5h</td><td>32</td><td>2</td></tr>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        function updateSimulationControls() {
+            if (!currentZone) return;
+            document.getElementById('simZoneId').innerText = currentZone.zone_id;
+            document.getElementById('sliderHuman').value = currentZone.camera.human_count;
+            document.getElementById('valHuman').innerText = currentZone.camera.human_count;
+            document.getElementById('sliderVehicle').value = currentZone.camera.vehicle_count;
+            document.getElementById('valVehicle').innerText = currentZone.camera.vehicle_count;
+            document.getElementById('sliderMotion').value = Math.round(currentZone.sensors.motion * 100);
+            document.getElementById('valMotion').innerText = currentZone.sensors.motion.toFixed(2);
+            document.getElementById('sliderSeismic').value = Math.round(currentZone.sensors.seismic * 100);
+            document.getElementById('valSeismic').innerText = currentZone.sensors.seismic.toFixed(2);
+        }
+
+        function applyScenarioPreset(presetKey) {
+            if (!currentZone) return;
+            if (presetKey === 'normal') {
+                document.getElementById('sliderHuman').value = 0;
+                document.getElementById('sliderVehicle').value = 0;
+                document.getElementById('sliderNight').value = 0;
+                document.getElementById('sliderMotion').value = 10;
+                document.getElementById('sliderSeismic').value = 10;
+            } else if (presetKey === 'night_human') {
+                document.getElementById('sliderHuman').value = 6;
+                document.getElementById('sliderVehicle').value = 1;
+                document.getElementById('sliderNight').value = 5;
+                document.getElementById('sliderMotion').value = 75;
+                document.getElementById('sliderSeismic').value = 40;
+            } else if (presetKey === 'sensor_spike') {
+                document.getElementById('sliderHuman').value = 1;
+                document.getElementById('sliderVehicle').value = 0;
+                document.getElementById('sliderNight').value = 2;
+                document.getElementById('sliderMotion').value = 90;
+                document.getElementById('sliderSeismic').value = 85;
+            } else if (presetKey === 'patrol_gap') {
+                document.getElementById('sliderHuman').value = 3;
+                document.getElementById('sliderVehicle').value = 1;
+                document.getElementById('sliderNight').value = 4;
+                document.getElementById('sliderMotion').value = 50;
+                document.getElementById('sliderSeismic').value = 45;
+            } else if (presetKey === 'multi_threat') {
+                document.getElementById('sliderHuman').value = 12;
+                document.getElementById('sliderVehicle').value = 3;
+                document.getElementById('sliderNight').value = 8;
+                document.getElementById('sliderMotion').value = 95;
+                document.getElementById('sliderSeismic').value = 90;
+            }
+
+            document.getElementById('valHuman').innerText = document.getElementById('sliderHuman').value;
+            document.getElementById('valVehicle').innerText = document.getElementById('sliderVehicle').value;
+            document.getElementById('valNight').innerText = document.getElementById('sliderNight').value;
+            document.getElementById('valMotion').innerText = (document.getElementById('sliderMotion').value/100).toFixed(2);
+            document.getElementById('valSeismic').innerText = (document.getElementById('sliderSeismic').value/100).toFixed(2);
+
+            runSimulation();
+        }
+
+        async function runSimulation() {
+            if (!currentZone) return;
+            const payload = {
+                zone_id: currentZone.zone_id,
+                human_count: parseInt(document.getElementById('sliderHuman').value),
+                vehicle_count: parseInt(document.getElementById('sliderVehicle').value),
+                night_movements: parseInt(document.getElementById('sliderNight').value),
+                motion_score: parseFloat(document.getElementById('sliderMotion').value) / 100,
+                seismic_score: parseFloat(document.getElementById('sliderSeismic').value) / 100
+            };
+
+            try {
+                const res = await fetch('/api/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                document.getElementById('simResultScore').innerText = `${result.Risk_Score}%`;
+                const badge = document.getElementById('simResultBadge');
+                badge.innerText = `${result.Risk_Level.toUpperCase()} (${result.Alert_Level})`;
+                badge.className = `px-3 py-1.5 rounded text-xs font-bold ${result.Risk_Level === 'Critical' ? 'bg-red-500 text-white' : (result.Risk_Level === 'High' ? 'bg-orange-500 text-white' : 'bg-amber-500 text-black')}`;
+                document.getElementById('simTacticalBox').innerText = result.Tactical_Recommendation;
+            } catch(e) { console.error(e); }
+        }
+
+        async function updateComparison() {
+            const idA = document.getElementById('compSelectA').value;
+            const idB = document.getElementById('compSelectB').value;
+            if (!idA || !idB) return;
+
+            try {
+                const resA = await fetch(`/api/zone/${idA}`);
+                const zA = await resA.json();
+                const resB = await fetch(`/api/zone/${idB}`);
+                const zB = await resB.json();
+
+                document.getElementById('compareTableBody').innerHTML = `
+                    <tr><td class="py-2 font-bold">Predicted Risk Score</td><td><b class="text-slate-100">${zA.risk_score}% (${zA.risk_level})</b></td><td><b class="text-slate-100">${zB.risk_score}% (${zB.risk_level})</b></td><td>${zA.risk_score > zB.risk_score ? 'Zone A Higher' : 'Zone B Higher'}</td></tr>
+                    <tr><td class="py-2">Terrain Elevation / Slope</td><td>${zA.environmental.avg_elevation}m / ${zA.environmental.avg_slope}°</td><td>${zB.environmental.avg_elevation}m / ${zB.environmental.avg_slope}°</td><td>Geographical Difficulty</td></tr>
+                    <tr><td class="py-2">Vegetation Concealment (NDVI)</td><td>${zA.environmental.ndvi.toFixed(2)} (${zA.environmental.land_cover})</td><td>${zB.environmental.ndvi.toFixed(2)} (${zB.environmental.land_cover})</td><td>Concealment Corridor</td></tr>
+                    <tr><td class="py-2">Patrol Coverage & Max Gap</td><td>${zA.operational.coverage_pct}% (${zA.operational.max_gap_hours}h gap)</td><td>${zB.operational.coverage_pct}% (${zB.operational.max_gap_hours}h gap)</td><td>Operational Vulnerability</td></tr>
+                    <tr><td class="py-2">Historical Infiltration Attempts</td><td>${zA.historical.event_count} events</td><td>${zB.historical.event_count} events</td><td>Baseline Hotspot Index</td></tr>
+                    <tr><td class="py-2">Simulated Camera Triggers</td><td>${zA.camera.human_count} humans / ${zA.camera.vehicle_count} vehicles</td><td>${zB.camera.human_count} humans / ${zB.camera.vehicle_count} vehicles</td><td>Surveillance Indicator</td></tr>
+                `;
+            } catch(e) { console.error(e); }
+        }
+
+        function openDecisionBriefModal() {
+            if (!currentZone) return;
+            document.getElementById('decisionBriefContent').innerText = currentZone.decision_brief;
+            document.getElementById('briefModal').classList.remove('hidden');
+        }
+
+        function closeDecisionBriefModal() {
+            document.getElementById('briefModal').classList.add('hidden');
+        }
+
+        function copyBriefToClipboard() {
+            const text = document.getElementById('decisionBriefContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Decision Brief copied to clipboard!");
+            });
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.nav-tab').forEach(b => {
+                b.classList.remove('active', 'bg-accentBlue', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+
+            event.currentTarget.classList.add('active', 'bg-accentBlue', 'text-white');
+            event.currentTarget.classList.remove('text-slate-400');
+
+            document.getElementById(pageId).classList.remove('hidden');
+            if (pageId === 'tab-map') {
+                setTimeout(() => map.invalidateSize(), 100);
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>

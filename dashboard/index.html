@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Border Infiltration AI — Analytical Dashboard System</title>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --risk-critical: #ef4444;
+            --risk-high: #f97316;
+            --risk-medium: #eab308;
+            --risk-low: #22c55e;
+            --accent-blue: #3b82f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        header { background-color: #090d16; border-bottom: 1px solid var(--border-color); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title h1 { font-size: 1.15rem; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 10px; }
+        .badge-live { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+        .badge-sim { background: rgba(234, 179, 8, 0.15); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+
+        .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 8px 20px; background: #0b1120; border-bottom: 1px solid var(--border-color); }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 14px; }
+        .kpi-card .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .kpi-card .value { font-size: 1.3rem; font-weight: 800; margin-top: 2px; }
+        .kpi-critical { border-left: 4px solid var(--risk-critical); }
+        .kpi-high { border-left: 4px solid var(--risk-high); }
+        .kpi-medium { border-left: 4px solid var(--risk-medium); }
+        .kpi-low { border-left: 4px solid var(--risk-low); }
+        .kpi-total { border-left: 4px solid var(--accent-blue); }
+
+        .main-nav { display: flex; gap: 4px; padding: 6px 20px; background: #0a0f1d; border-bottom: 1px solid var(--border-color); overflow-x: auto; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); padding: 6px 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border-radius: 4px; white-space: nowrap; }
+        .nav-btn.active { background: var(--accent-blue); color: #fff; }
+
+        .main-container { flex: 1; display: grid; grid-template-columns: 1fr 440px; overflow: hidden; position: relative; }
+        #map { width: 100%; height: 100%; background: #0a0f1d; }
+
+        .page-view { display: none; width: 100%; height: 100%; padding: 20px; overflow-y: auto; background: #0b1120; }
+        .page-view.active { display: block; }
+
+        .detail-panel { background: #111827; border-left: 1px solid var(--border-color); padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .panel-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; }
+        .panel-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+
+        .zone-header { display: flex; justify-content: space-between; align-items: center; }
+        .zone-id { font-size: 1.2rem; font-weight: 800; }
+        .risk-badge { font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; }
+        .bg-critical { background: var(--risk-critical); color: #fff; }
+        .bg-high { background: var(--risk-high); color: #fff; }
+        .bg-medium { background: var(--risk-medium); color: #000; }
+        .bg-low { background: var(--risk-low); color: #000; }
+
+        .trend-badge { font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-left: 6px; }
+        .trend-Increasing { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .trend-Decreasing { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .trend-Stable { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+
+        .progress-bar-container { margin-bottom: 6px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 2px; }
+        .progress-track { background: #334155; height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-blue); border-radius: 3px; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 6px; }
+        .data-table th, .data-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #334155; }
+        .data-table th { color: var(--text-muted); font-weight: 600; background: #0f172a; }
+        .tag-escalate { color: #f87171; font-weight: 600; }
+        .tag-mitigate { color: #4ade80; font-weight: 600; }
+
+        .telemetry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; }
+        .telemetry-item { background: #0f172a; padding: 8px; border-radius: 6px; border: 1px solid #334155; }
+        .telemetry-item .val { font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin-top: 2px; }
+
+        select.zone-select { width: 100%; padding: 8px; background: #0f172a; border: 1px solid var(--border-color); color: #fff; border-radius: 6px; font-size: 0.85rem; }
+
+        .explanation-box { background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--accent-blue); padding: 8px 10px; font-size: 0.75rem; color: #93c5fd; border-radius: 4px; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>🛡️ BORDER SECURITY RISK INTELLIGENCE & ANALYSIS <span class="badge-live">HYBRID ML SYSTEM</span></h1>
+        </div>
+        <div>
+            <span class="badge-sim">RESEARCH PROTOTYPE | DATASET-DRIVEN | SIMULATED INTELLIGENCE</span>
+        </div>
+    </header>
+
+    <!-- Top KPI Cards -->
+    <div class="kpi-row">
+        <div class="kpi-card kpi-total">
+            <div class="label">Total Border Zones</div>
+            <div class="value" id="kpi-total">150</div>
+        </div>
+        <div class="kpi-card kpi-critical">
+            <div class="label">Critical Risk Zones</div>
+            <div class="value" id="kpi-critical" style="color: var(--risk-critical);">5</div>
+        </div>
+        <div class="kpi-card kpi-high">
+            <div class="label">High Risk Zones</div>
+            <div class="value" id="kpi-high" style="color: var(--risk-high);">40</div>
+        </div>
+        <div class="kpi-card kpi-medium">
+            <div class="label">Medium Risk Zones</div>
+            <div class="value" id="kpi-medium" style="color: var(--risk-medium);">86</div>
+        </div>
+        <div class="kpi-card kpi-low">
+            <div class="label">Low Risk Zones</div>
+            <div class="value" id="kpi-low" style="color: var(--risk-low);">19</div>
+        </div>
+    </div>
+
+    <!-- 9-Page Navigation Bar -->
+    <div class="main-nav">
+        <button class="nav-btn active" onclick="showPage('map-view')">🗺️ GIS Risk Map</button>
+        <button class="nav-btn" onclick="showPage('page-shap')">💡 Explainable AI (SHAP)</button>
+        <button class="nav-btn" onclick="showPage('page-explorer')">📊 Dataset Explorer</button>
+        <button class="nav-btn" onclick="showPage('page-analytics')">📈 Model Analytics</button>
+        <button class="nav-btn" onclick="showPage('page-ablation')">🧪 Ablation Study</button>
+        <button class="nav-btn" onclick="showPage('page-surveillance')">📷 Surveillance Telemetry</button>
+        <button class="nav-btn" onclick="showPage('page-compare')">⚖️ Zone Comparison Tool</button>
+    </div>
+
+    <!-- Main Container: Left Map/Pages & Right Detail Panel -->
+    <div class="main-container">
+        
+        <!-- GIS Map Page -->
+        <div id="map-view" style="width: 100%; height: 100%;">
+            <div id="map"></div>
+        </div>
+
+        <!-- Page 4: SHAP Explainability -->
+        <div id="page-shap" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">💡 Global & Local Explainable AI (SHAP) Analysis</h2>
+            <div class="panel-section" style="margin-bottom: 16px;">
+                <div class="panel-title">Global Feature Importance Ranking</div>
+                <table class="data-table">
+                    <thead><tr><th>Rank</th><th>Feature</th><th>Category</th><th>Mean SHAP Value</th></tr></thead>
+                    <tbody id="shapGlobalTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Page 5: Dataset Explorer -->
+        <div id="page-explorer" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">📊 Master Multi-Modal Dataset Explorer</h2>
+            <div class="panel-section" style="margin-bottom: 16px;">
+                <div class="panel-title"><span>Terrain Data Sample (519k Points Aggregated)</span></div>
+                <table class="data-table"><tbody id="expTerrain"></tbody></table>
+            </div>
+            <div class="panel-section" style="margin-bottom: 16px;">
+                <div class="panel-title"><span>Patrol Coverage & Readiness</span></div>
+                <table class="data-table"><tbody id="expPatrol"></tbody></table>
+            </div>
+            <div class="panel-section">
+                <div class="panel-title"><span>Surveillance Telemetry (Simulated)</span> <span class="badge-sim">SIMULATED DATA</span></div>
+                <table class="data-table"><tbody id="expSurv"></tbody></table>
+            </div>
+        </div>
+
+        <!-- Page 6: Model Analytics -->
+        <div id="page-analytics" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">📈 Empirical Model Evaluation (5-Fold Stratified CV)</h2>
+            <div class="panel-section" style="margin-bottom: 16px;">
+                <table class="data-table">
+                    <thead><tr><th>Model</th><th>Accuracy (Mean ± Std)</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>ROC-AUC</th></tr></thead>
+                    <tbody id="evalFullTable"></tbody>
+                </table>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">
+                    *Logistic Regression achieved the highest evaluation metrics on the current linear domain sub-scores. Random Forest & XGBoost are non-linear comparative models.
+                </p>
+            </div>
+        </div>
+
+        <!-- Page 7: Ablation Study -->
+        <div id="page-ablation" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🧪 Multi-Modal Feature Ablation Experimentation</h2>
+            <div class="panel-section">
+                <table class="data-table">
+                    <thead><tr><th>Experiment Stage</th><th>Feature Count</th><th>LR F1-Score</th><th>LR ROC-AUC</th><th>RF F1-Score</th></tr></thead>
+                    <tbody id="ablationFullTable"></tbody>
+                </table>
+                <div class="explanation-box" style="margin-top: 12px;">
+                    <b>Key Finding:</b> Multi-modal integration of Operational Patrol, Historical Infiltrations, and Surveillance Intelligence yields a <b>+25.76% F1-score improvement</b> over environmental features alone.
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 8: Surveillance Telemetry -->
+        <div id="page-surveillance" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">📷 Simulated Camera & Multi-Sensor Telemetry</h2>
+            <div class="panel-section">
+                <div class="panel-title">Surveillance Intelligence Summary <span class="badge-sim">SIMULATED DATA</span></div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+                    Simulated optical/thermal camera triggers (1,200 events) and multi-sensor readings (1,500 acoustic/seismic/infrared telemetry readings).
+                </p>
+                <div class="telemetry-grid">
+                    <div class="telemetry-item"><div>Total Camera Triggers</div><div class="val">1,200 Events</div></div>
+                    <div class="telemetry-item"><div>Total Sensor Telemetry</div><div class="val">1,500 Readings</div></div>
+                    <div class="telemetry-item"><div>Avg Detection Conf</div><div class="val">91.3%</div></div>
+                    <div class="telemetry-item"><div>Sensor Types</div><div class="val">5 Modalities</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page 9: Zone Comparison Tool -->
+        <div id="page-compare" class="page-view">
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">⚖️ Side-by-Side Zone Risk Comparison</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">SELECT ZONE A</label>
+                    <select id="compareA" class="zone-select" onchange="runComparison()"></select>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted);">SELECT ZONE B</label>
+                    <select id="compareB" class="zone-select" onchange="runComparison()"></select>
+                </div>
+            </div>
+            <div class="panel-section">
+                <table class="data-table">
+                    <thead><tr><th>Domain Metric</th><th>Zone A</th><th>Zone B</th></tr></thead>
+                    <tbody id="compareTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right Side: Detail Panel -->
+        <div class="detail-panel">
+            <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">SELECT ZONE FOR DETAILED ANALYSIS</label>
+                <select id="zoneSelector" class="zone-select" onchange="onZoneSelect(this.value)"></select>
+            </div>
+
+            <!-- Zone Risk Overview -->
+            <div class="panel-section">
+                <div class="zone-header">
+                    <div>
+                        <span class="zone-id" id="detailZoneId">SGR_ZONE_001</span>
+                        <span class="trend-badge trend-Stable" id="detailTrend">7-Day Trend: Stable</span>
+                    </div>
+                    <span class="risk-badge bg-medium" id="detailRiskBadge">MEDIUM (45%)</span>
+                </div>
+                <div class="explanation-box" id="detailExpText">
+                    Loading zone explanation...
+                </div>
+            </div>
+
+            <!-- Domain Sub-score Breakdown -->
+            <div class="panel-section">
+                <div class="panel-title">Multi-Modal Domain Risk Breakdown</div>
+                <div class="progress-bar-container">
+                    <div class="progress-label"><span>Terrain Geography</span><span id="bar-terrain-val">0.45</span></div>
+                    <div class="progress-track"><div class="progress-fill" id="bar-terrain" style="width: 45%;"></div></div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-label"><span>Weather / Visibility Risk</span><span id="bar-weather-val">0.35</span></div>
+                    <div class="progress-track"><div class="progress-fill" id="bar-weather" style="width: 35%;"></div></div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-label"><span>Vegetation Concealment</span><span id="bar-veg-val">0.40</span></div>
+                    <div class="progress-track"><div class="progress-fill" id="bar-veg" style="width: 40%;"></div></div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-label"><span>Patrol Gap Risk</span><span id="bar-patrol-val">0.30</span></div>
+                    <div class="progress-track"><div class="progress-fill" id="bar-patrol" style="width: 30%;"></div></div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-label"><span>Historical Vulnerability</span><span id="bar-hist-val">0.50</span></div>
+                    <div class="progress-track"><div class="progress-fill" id="bar-hist" style="width: 50%;"></div></div>
+                </div>
+            </div>
+
+            <!-- SHAP Explainable Drivers -->
+            <div class="panel-section">
+                <div class="panel-title">💡 SHAP Risk Drivers</div>
+                <table class="data-table">
+                    <thead><tr><th>Factor</th><th>Observed Value</th><th>Effect</th></tr></thead>
+                    <tbody id="shapFactorsBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Camera & Sensors -->
+            <div class="panel-section">
+                <div class="panel-title">
+                    <span>📷 Surveillance Telemetry</span>
+                    <span class="badge-sim">SIMULATED DATA</span>
+                </div>
+                <div class="telemetry-grid">
+                    <div class="telemetry-item"><div>Human Detections</div><div class="val" id="tel-humans">2</div></div>
+                    <div class="telemetry-item"><div>Vehicle Detections</div><div class="val" id="tel-vehicles">1</div></div>
+                    <div class="telemetry-item"><div>Motion Signal</div><div class="val" id="tel-motion">0.45</div></div>
+                    <div class="telemetry-item"><div>Seismic Activity</div><div class="val" id="tel-seismic">0.22</div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let map, zoneMarkers = {}, dashboardData = null;
+
+        async function initDashboard() {
+            try {
+                const resp = await fetch('dashboard_data.json');
+                dashboardData = await resp.json();
+            } catch(e) {
+                console.error("Could not load dashboard_data.json:", e);
+                return;
+            }
+
+            // Summary KPIs
+            const s = dashboardData.summary;
+            document.getElementById('kpi-total').innerText = s.total_zones;
+            document.getElementById('kpi-critical').innerText = s.critical_count;
+            document.getElementById('kpi-high').innerText = s.high_count;
+            document.getElementById('kpi-medium').innerText = s.medium_count;
+            document.getElementById('kpi-low').innerText = s.low_count;
+
+            // Zone Selectors
+            const selMain = document.getElementById('zoneSelector');
+            const selA = document.getElementById('compareA');
+            const selB = document.getElementById('compareB');
+
+            dashboardData.zones.forEach((z, i) => {
+                const opt1 = new Option(`${z.zone_id} (${z.risk_level} - ${z.risk_score}%)`, z.zone_id);
+                const opt2 = new Option(`${z.zone_id} (${z.risk_level})`, z.zone_id);
+                const opt3 = new Option(`${z.zone_id} (${z.risk_level})`, z.zone_id);
+                selMain.appendChild(opt1);
+                selA.appendChild(opt2);
+                selB.appendChild(opt3);
+            });
+
+            if (dashboardData.zones.length > 1) {
+                selB.value = dashboardData.zones[1].zone_id;
+            }
+
+            // Map Init
+            map = L.map('map').setView([34.0, 75.0], 8);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            dashboardData.zones.forEach(z => {
+                let color = '#22c55e';
+                if (z.risk_level === 'Critical') color = '#ef4444';
+                else if (z.risk_level === 'High') color = '#f97316';
+                else if (z.risk_level === 'Medium') color = '#eab308';
+
+                const marker = L.circleMarker([z.latitude, z.longitude], {
+                    radius: 7,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.85
+                }).addTo(map);
+
+                marker.bindTooltip(`<b>${z.zone_id}</b><br>Risk: ${z.risk_score}% (${z.risk_level})`);
+                marker.on('click', () => {
+                    document.getElementById('zoneSelector').value = z.zone_id;
+                    updateZoneDetails(z);
+                });
+                zoneMarkers[z.zone_id] = marker;
+            });
+
+            // Populate Page Views
+            populateSHAPGlobal();
+            populateExplorer();
+            populateModelAnalytics();
+            populateAblation();
+            runComparison();
+
+            if (dashboardData.zones.length > 0) {
+                updateZoneDetails(dashboardData.zones[0]);
+            }
+        }
+
+        function onZoneSelect(zoneId) {
+            const z = dashboardData.zones.find(item => item.zone_id === zoneId);
+            if (z) {
+                updateZoneDetails(z);
+                map.panTo([z.latitude, z.longitude]);
+            }
+        }
+
+        function updateZoneDetails(z) {
+            document.getElementById('detailZoneId').innerText = z.zone_id;
+            const badge = document.getElementById('detailRiskBadge');
+            badge.innerText = `${z.risk_level.toUpperCase()} (${z.risk_score}%)`;
+            badge.className = `risk-badge bg-${z.risk_level.toLowerCase()}`;
+
+            const trendBadge = document.getElementById('detailTrend');
+            trendBadge.innerText = `7-Day Trend: ${z.trend_direction}`;
+            trendBadge.className = `trend-badge trend-${z.trend_direction}`;
+
+            document.getElementById('detailExpText').innerText = z.shap_factors.explanation_text;
+
+            const d = z.environmental;
+            const op = z.operational;
+            const h = z.historical;
+            setBar('bar-terrain', d.terrain_risk);
+            setBar('bar-weather', d.weather_risk);
+            setBar('bar-veg', d.vegetation_risk);
+            setBar('bar-patrol', op.patrol_risk);
+            setBar('bar-hist', h.historical_risk);
+
+            const tbody = document.getElementById('shapFactorsBody');
+            tbody.innerHTML = '';
+            
+            z.shap_factors.escalating.forEach(f => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${f.factor}</td><td>${f.value}</td><td class="tag-escalate">↑ Escalating (${f.impact})</td>`;
+                tbody.appendChild(tr);
+            });
+            z.shap_factors.mitigating.forEach(f => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${f.factor}</td><td>${f.value}</td><td class="tag-mitigate">↓ Mitigating (${f.impact})</td>`;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('tel-humans').innerText = z.camera.human_count;
+            document.getElementById('tel-vehicles').innerText = z.camera.vehicle_count;
+            document.getElementById('tel-motion').innerText = z.sensors.motion.toFixed(2);
+            document.getElementById('tel-seismic').innerText = z.sensors.seismic.toFixed(2);
+        }
+
+        function setBar(id, val) {
+            const pct = Math.min(100, Math.max(0, val * 100));
+            document.getElementById(id).style.width = pct + '%';
+            document.getElementById(id + '-val').innerText = val.toFixed(2);
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            document.getElementById('map-view').style.display = 'none';
+
+            event.target.classList.add('active');
+
+            if (pageId === 'map-view') {
+                document.getElementById('map-view').style.display = 'block';
+                map.invalidateSize();
+            } else {
+                document.getElementById(pageId).classList.add('active');
+            }
+        }
+
+        function populateSHAPGlobal() {
+            const tbody = document.getElementById('shapGlobalTable');
+            tbody.innerHTML = '';
+            if (dashboardData.feature_importances) {
+                dashboardData.feature_importances.slice(0, 10).forEach((item, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>#${idx+1}</td><td><b>${item.Feature}</b></td><td>Domain Feature</td><td>${item.Mean_SHAP_Importance}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function populateExplorer() {
+            const s = dashboardData.explorer_samples;
+            if (s && s.terrain_sample) {
+                document.getElementById('expTerrain').innerHTML = `<tr><th>Zone</th><th>Avg Elev</th><th>Avg Slope</th><th>Terrain Risk</th></tr>` +
+                    s.terrain_sample.map(r => `<tr><td>${r.Zone_ID}</td><td>${r.Avg_Elevation}m</td><td>${r.Avg_Slope}°</td><td>${r.Terrain_Risk}</td></tr>`).join('');
+                document.getElementById('expPatrol').innerHTML = `<tr><th>Zone</th><th>Coverage</th><th>Blind Spots</th><th>Gap Hrs</th></tr>` +
+                    s.patrol_sample.map(r => `<tr><td>${r.Zone_ID}</td><td>${r.Coverage_Pct}%</td><td>${r.Blind_Spots}</td><td>${r.Max_Gap_Hours}h</td></tr>`).join('');
+                document.getElementById('expSurv').innerHTML = `<tr><th>Zone</th><th>Humans</th><th>Vehicles</th><th>Motion</th></tr>` +
+                    s.camera_sample.map(r => `<tr><td>${r.Zone_ID}</td><td>${r.Human_Detection_Count}</td><td>${r.Vehicle_Detection_Count}</td><td>${r.Camera_Activity_Score}</td></tr>`).join('');
+            }
+        }
+
+        function populateModelAnalytics() {
+            const tbody = document.getElementById('evalFullTable');
+            tbody.innerHTML = '';
+            if (dashboardData.models_evaluation) {
+                dashboardData.models_evaluation.forEach(m => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td><b>${m.Model}</b></td><td>${m.Accuracy}</td><td>${m.Precision}</td><td>${m.Recall}</td><td>${m['F1-Score']}</td><td>${m['ROC-AUC']}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function populateAblation() {
+            const tbody = document.getElementById('ablationFullTable');
+            tbody.innerHTML = '';
+            if (dashboardData.ablation_study) {
+                dashboardData.ablation_study.forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td><b>${a.Experiment}</b></td><td>${a.Feature_Count}</td><td>${a.LR_F1_Score}</td><td>${a.LR_ROC_AUC}</td><td>${a.RF_F1_Score}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function runComparison() {
+            const idA = document.getElementById('compareA').value;
+            const idB = document.getElementById('compareB').value;
+            const zA = dashboardData.zones.find(z => z.zone_id === idA);
+            const zB = dashboardData.zones.find(z => z.zone_id === idB);
+            if (!zA || !zB) return;
+
+            const tbody = document.getElementById('compareTableBody');
+            tbody.innerHTML = `
+                <tr><td>Risk Score</td><td><b>${zA.risk_score}% (${zA.risk_level})</b></td><td><b>${zB.risk_score}% (${zB.risk_level})</b></td></tr>
+                <tr><td>Terrain Risk</td><td>${zA.environmental.terrain_risk}</td><td>${zB.environmental.terrain_risk}</td></tr>
+                <tr><td>Weather Risk</td><td>${zA.environmental.weather_risk}</td><td>${zB.environmental.weather_risk}</td></tr>
+                <tr><td>Vegetation Risk</td><td>${zA.environmental.vegetation_risk}</td><td>${zB.environmental.vegetation_risk}</td></tr>
+                <tr><td>Patrol Coverage</td><td>${zA.operational.coverage_pct}%</td><td>${zB.operational.coverage_pct}%</td></tr>
+                <tr><td>Max Gap Hours</td><td>${zA.operational.max_gap_hours} hrs</td><td>${zB.operational.max_gap_hours} hrs</td></tr>
+                <tr><td>Historical Infiltrations</td><td>${zA.historical.event_count} events</td><td>${zB.historical.event_count} events</td></tr>
+                <tr><td>Simulated Camera Humans</td><td>${zA.camera.human_count}</td><td>${zB.camera.human_count}</td></tr>
+                <tr><td>Simulated Motion Signal</td><td>${zA.sensors.motion}</td><td>${zB.sensors.motion}</td></tr>
+            `;
+        }
+
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
