@@ -1721,28 +1721,6 @@ Sensors (1.5k Readings) ─┘                                          │
             light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         };
 
-        // Coordinates for Kashmir / Srinagar Sector boundary polygon
-        const srinagarSectorPolygon = [
-            [34.35, 74.45], [34.45, 74.80], [34.30, 75.30], [34.05, 75.60],
-            [33.70, 75.50], [33.40, 75.20], [33.30, 74.60], [33.55, 74.20],
-            [33.95, 74.15], [34.35, 74.45]
-        ];
-
-        async function initApp() {
-            updateClock();
-            setInterval(updateClock, 30000);
-
-            // Overview stats
-            try {
-                const res = await fetch('/api/overview');
-                const ov = await res.json();
-                document.getElementById('kpiTotal').innerText = ov.total_zones;
-                document.getElementById('kpiCritical').innerText = ov.critical_count;
-                document.getElementById('kpiHigh').innerText = ov.high_count;
-                document.getElementById('kpiMedium').innerText = ov.medium_count;
-                document.getElementById('kpiLow').innerText = ov.low_count;
-            } catch (e) { console.error(e); }
-
         // Natural boundary polygon for Srinagar Sector study area
         const srinagarSectorPolygon = [
             [35.15, 74.60], [35.20, 75.10], [35.10, 75.50], [34.85, 76.10],
