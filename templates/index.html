@@ -2198,7 +2198,6 @@ Sensors (1.5k Readings) ─┘                                          │
             `;
 
             // Decision Engine Panel Updates
-            const pa = z.patrol_assessment || {};
             const deStatusBadge = document.getElementById('deDecisionStatusBadge');
             if (deStatusBadge) {
                 deStatusBadge.innerText = pa.decision_status || 'MONITOR & REVIEW';
