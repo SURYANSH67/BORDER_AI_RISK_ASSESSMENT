@@ -668,6 +668,40 @@
                     </div>
                 </div>
 
+                <!-- DECISION ENGINE: RESOURCE ALLOCATION & OPERATIONAL DIRECTIVE -->
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-blue-600 text-sm"></i>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">DECISION ENGINE: RESOURCE ALLOCATION & OPERATIONAL GUIDANCE</h3>
+                        </div>
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase" id="deDecisionStatusBadge">IMMEDIATE REVIEW & PATROL SURGE</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 text-xs">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Personnel Allocation Index</span>
+                            <div class="text-lg font-black text-slate-900 mt-0.5" id="dePersonnelIndex">1.25× baseline</div>
+                            <span class="text-[10px] text-slate-500 font-medium" id="deIndexMeaning">Estimates approximately 25% more patrol-resource coverage relative to baseline.</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Patrol Coverage Posture</span>
+                            <div class="text-sm font-black text-slate-900 mt-0.5" id="dePatrolGapText">73.9% vs 80% Baseline</div>
+                            <span class="text-[10px] font-bold text-orange-600" id="deGapStatusText">6.1 percentage points deficit (Below Baseline)</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Recommended Resource Level</span>
+                            <div class="text-xs font-black text-slate-900 mt-0.5" id="deResourceLevelText">Moderate reinforcement / additional monitoring required</div>
+                            <span class="text-[10px] text-slate-500">Relative dataset-driven recommendation.</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-xs text-slate-700 leading-relaxed font-medium">
+                        <span class="font-black text-blue-900 block mb-0.5">Model Operational Directive:</span>
+                        <span id="deDirectiveText">Patrol coverage is below configured 80% baseline. Increase coverage toward baseline during identified high-risk periods.</span>
+                    </div>
+                </div>
+
                 <!-- Drivers & Attention -->
                 <div class="grid grid-cols-12 gap-5">
                     <div class="col-span-6 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col justify-between">
@@ -1268,6 +1302,23 @@ Sensors (1.5k rdgs) ─┘                                              │
                 Historical records influence baseline zone vulnerability. 
                 <b>Assessment:</b> ${z.ai_assessment.executive_summary}
             `;
+
+            // Decision Engine Panel Updates
+            const pa = z.patrol_assessment || {};
+            const deStatusBadge = document.getElementById('deDecisionStatusBadge');
+            if (deStatusBadge) {
+                deStatusBadge.innerText = pa.decision_status || 'MONITOR & REVIEW';
+                if (z.risk_level === 'Critical') deStatusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase';
+                else if (z.risk_level === 'High') deStatusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 uppercase';
+                else if (z.risk_level === 'Medium') deStatusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 uppercase';
+                else deStatusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase';
+            }
+            if (document.getElementById('dePersonnelIndex')) document.getElementById('dePersonnelIndex').innerText = pa.personnel_allocation_index || '1.00× baseline';
+            if (document.getElementById('deIndexMeaning')) document.getElementById('deIndexMeaning').innerText = pa.index_meaning || 'Patrol resources meet the configured 80% baseline.';
+            if (document.getElementById('dePatrolGapText')) document.getElementById('dePatrolGapText').innerText = `${pa.current_coverage || 70}% vs ${pa.target_coverage || 80}% Baseline`;
+            if (document.getElementById('deGapStatusText')) document.getElementById('deGapStatusText').innerText = `${pa.coverage_gap || 0} percentage points gap (${pa.gap_status || 'Adequate'})`;
+            if (document.getElementById('deResourceLevelText')) document.getElementById('deResourceLevelText').innerText = pa.resource_level || 'Standard baseline allocation sufficient';
+            if (document.getElementById('deDirectiveText')) document.getElementById('deDirectiveText').innerText = pa.recommendation || 'Maintain planned patrol rotations with periodic coverage spot-checks.';
 
             // Drivers
             const driversHtml = [];

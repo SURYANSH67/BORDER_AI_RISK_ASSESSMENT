@@ -93,7 +93,7 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
         "vegetation_risk": float(zone_row.get("Vegetation_Risk", 0.4))
     }
 
-    # 4. Operational Intelligence & Patrol Assessment
+    # 4. Operational Intelligence & Formal Decision Engine
     current_cov = float(zone_row.get("Coverage_Pct", 70.0))
     target_cov = 80.0
     cov_gap = max(0.0, target_cov - current_cov)
@@ -101,21 +101,46 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
     readiness = float(zone_row.get("Readiness_Score", 70.0))
     patrol_risk = float(zone_row.get("Patrol_Risk", 0.35))
 
-    if cov_gap > 10.0 or max_gap_hours > 12.0:
-        patrol_status = "BELOW TARGET"
+    # Decision Engine: Personnel Allocation Index (relative to configured 80% baseline)
+    if risk_score > 72.0:
+        alloc_index = round(1.0 + (cov_gap / 100.0) * 1.5 + (risk_score - 72.0) / 100.0, 2)
+        resource_level = "High reinforcement / immediate coverage surge required"
+        decision_status = "IMMEDIATE REVIEW & PATROL SURGE"
+        zone_priority_label = "CRITICAL / IMMEDIATE ACTION"
+        patrol_status = "SIGNIFICANT DEFICIT"
+        patrol_priority = "IMMEDIATE"
+        gap_status = "CRITICAL GAP"
+        patrol_rec = f"Patrol coverage is {cov_gap:.1f} percentage points below the 80% baseline. Increase coverage toward baseline during high-risk night intervals."
+    elif risk_score > 50.0:
+        alloc_index = round(1.0 + (cov_gap / 100.0) * 1.2 + (risk_score - 50.0) / 150.0, 2)
+        resource_level = "Moderate reinforcement / enhanced patrol monitoring required"
+        decision_status = "ENHANCED MONITORING & REVIEW"
+        zone_priority_label = "HIGH / ELEVATED MONITORING"
+        patrol_status = "BELOW BASELINE"
         patrol_priority = "ELEVATED"
-        gap_status = "SIGNIFICANT"
-        patrol_rec = "Increase patrol attention for this zone and review the existing patrol-gap pattern."
-    elif cov_gap > 3.0 or max_gap_hours > 7.0:
-        patrol_status = "NEAR TARGET"
+        gap_status = "MODERATE GAP"
+        patrol_rec = f"Patrol coverage ({current_cov:.1f}%) is below configured 80% baseline. Increase coverage toward baseline during identified high-risk periods."
+    elif risk_score > 25.0:
+        alloc_index = round(max(1.0, 1.0 + (cov_gap / 100.0) * 0.8), 2)
+        resource_level = "Standard allocation with periodic coverage spot-checks"
+        decision_status = "MONITOR & REVIEW"
+        zone_priority_label = "ROUTINE / ENHANCED MONITORING"
+        patrol_status = "NEAR BASELINE"
         patrol_priority = "MODERATE"
-        gap_status = "MODERATE"
+        gap_status = "MINIMAL GAP"
         patrol_rec = "Maintain planned patrol rotations with periodic coverage spot-checks."
     else:
+        alloc_index = 1.00
+        resource_level = "Standard baseline allocation sufficient"
+        decision_status = "ROUTINE MONITORING"
+        zone_priority_label = "ROUTINE POSTURE"
         patrol_status = "ADEQUATE"
         patrol_priority = "STANDARD"
-        gap_status = "MINIMAL"
+        gap_status = "NO GAP"
         patrol_rec = "Patrol coverage meets sector operational readiness standards."
+
+    index_pct = int(round((alloc_index - 1.0) * 100))
+    index_meaning = f"The model estimates approximately {index_pct}% more patrol-resource coverage relative to the configured 80% baseline." if index_pct > 0 else "Patrol resources meet the configured 80% operational baseline."
 
     patrol_assessment = {
         "current_coverage": round(current_cov, 1),
@@ -128,7 +153,12 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
         "status": patrol_status,
         "priority": patrol_priority,
         "gap_status": gap_status,
-        "recommendation": patrol_rec
+        "recommendation": patrol_rec,
+        "personnel_allocation_index": f"{alloc_index:.2f}× baseline",
+        "resource_level": resource_level,
+        "decision_status": decision_status,
+        "zone_priority_label": zone_priority_label,
+        "index_meaning": index_meaning
     }
 
     # 5. Historical Intelligence
@@ -318,39 +348,45 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
         shap_explanation = f"{zone_id} is classified as {risk_level.upper()} ({risk_score:.1f}%). Operational and environmental metrics remain within standard baseline tolerances."
 
     # 12. Complete Exportable Zone Decision Brief
+    surv_meaning = "Multiple surveillance indicators are elevated. Cross-check camera and sensor observations before increasing zone priority." if (camera["activity_score"] > 0.3 or sensors["activity_score"] > 0.4) else "Surveillance telemetry aligned with baseline operational parameters."
+
     decision_brief = f"""================================================================================
-ZONE ANALYSIS BRIEF — {zone_id}
-[Research Prototype | Dataset-Based Analysis | Simulated Surveillance Data]
+ZONE DECISION BRIEF — {zone_id}
+[Research Prototype | Dataset-Based Analysis | Decision Support System]
 ================================================================================
 
-1. EXECUTIVE RISK ASSESSMENT
-   • Infiltration Risk Score : {risk_score:.1f}% ({risk_level.upper()})
-   • Model Confidence        : {model_conf_level} ({class_prob:.1f}% Predicted Class Probability)
-   • 7-Day Trend             : {trend_direction} {trend}
-   • Spatial Context         : {spatial_summary}
+ZONE: {zone_id}
+Risk: {risk_score:.1f}% — {risk_level.upper()}
+Priority: {patrol_assessment['zone_priority_label']}
 
-2. PRIMARY RISK DRIVERS
-{chr(10).join([f'   • {d["domain"]:25s}: {d["status"]:10s} — {d["interpretation"]}' for d in driver_interpretations])}
+1. WHY IS THIS ZONE RISKY?
+{chr(10).join([f'   • {d["domain"]:22s}: {d["status"]:10s} — {d["interpretation"]}' for d in driver_interpretations])}
 
-3. PATROL COVERAGE ASSESSMENT
-   • Current Patrol Coverage : {current_cov:.1f}% (Dataset Target: {target_cov:.1f}%)
-   • Coverage Gap            : {cov_gap:.1f} percentage points ({gap_status})
-   • Model-Assessed Priority : {patrol_priority}
-   • Analytical Directive    : {patrol_rec}
+2. WHAT DOES THE MODEL RECOMMEND?
+   • Patrol Coverage       : Current {current_cov:.1f}% vs Required {target_cov:.1f}% Baseline (Gap: {cov_gap:.1f} pts — {gap_status})
+   • Directive             : {patrol_rec}
+   • Resource Level        : {resource_level}
+   • Personnel Index       : {patrol_assessment['personnel_allocation_index']} ({index_meaning})
 
-4. SURVEILLANCE & TELEMETRY [SIMULATED INTELLIGENCE]
-   • Optical/Thermal Triggers: {camera['human_count']} Human Detections, {camera['vehicle_count']} Vehicle Detections
-   • Sensor Telemetry Array  : Motion: {sensors['motion']:.2f} | Seismic: {sensors['seismic']:.2f} | Acoustic: {sensors['acoustic']:.2f}
-   • Surveillance Priority   : {ai_assessment['attention_levels']['surveillance']}
+3. SURVEILLANCE & SENSOR CROSS-CHECK
+   • Human Detections      : {camera['human_count']:2d} ({'Elevated' if camera['human_count'] > 2 else 'Moderate'})
+   • Vehicle Detections    : {camera['vehicle_count']:2d} ({'Elevated' if camera['vehicle_count'] > 2 else 'Moderate'})
+   • Night Movements       : {camera['night_movements']:2d} ({'Elevated' if camera['night_movements'] > 3 else 'Moderate'})
+   • Motion Score          : {sensors['motion']:.2f} ({'Moderate' if sensors['motion'] > 0.5 else 'Low'})
+   • Infrared Score        : {sensors['infrared']:.2f} ({'Elevated' if sensors['infrared'] > 0.6 else 'Moderate'})
+   • Acoustic Score        : {sensors['acoustic']:.2f} ({'Moderate' if sensors['acoustic'] > 0.4 else 'Low'})
+   • Seismic Score         : {sensors['seismic']:.2f} ({'Low' if sensors['seismic'] <= 0.4 else 'Elevated'})
+   • Cross-Check Synthesis : {surv_meaning}
 
-5. HISTORICAL CONTEXT
-   • Historical Incidents    : {historical['event_count']} recorded events ({historical['night_events']} night attempts)
-   • Historical Risk Index   : {historical['historical_risk']:.2f}
-
-6. ANALYTICAL RECOMMENDATIONS & SENSITIVITY MITIGATION
-   • {mitigation_factors[0]['action']} ({mitigation_factors[0]['effect']})
-   • {mitigation_factors[1]['action']} ({mitigation_factors[1]['effect']})
-   • {mitigation_factors[2]['action']} ({mitigation_factors[2]['effect']})
+4. FINAL DECISION SUMMARY
+   • Zone Assessment       : {risk_level.upper()} RISK ({risk_score:.1f}%)
+   • Primary Concern       : {escalating[0]['factor'] if escalating else 'Baseline operational monitoring'} + {escalating[1]['factor'] if len(escalating)>1 else 'routine surveillance'}
+   • Required Attention   : {patrol_rec}
+   • Surveillance Posture  : Continue camera and sensor observation.
+   • Historical Vulnerability: {'High' if historical['event_count'] > 40 else ('Moderate' if historical['event_count'] > 15 else 'Low')}.
+   • Weather Impact        : {'Moderate' if environmental['weather_risk'] > 0.25 else 'Low'}.
+   • Model Confidence      : {model_conf_level} ({class_prob:.1f}% Predicted Class Probability)
+   • Decision Status       : {decision_status}
 ================================================================================"""
 
     payload = {
