@@ -1063,16 +1063,255 @@ Sensors (1.5k rdgs) ─┘                                              │
             </div>
 
             <!-- ========================================================================= -->
-            <!-- 8. 📄 REPORTS (FULL 20-SECTION THESIS REPORT VIEWER) -->
+            <!-- 8. 📄 REPORTS (FULL ACADEMIC THESIS REPORT VIEWER - REFERENCE MATCH) -->
             <!-- ========================================================================= -->
             <div id="tab-reports" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-sm font-black text-slate-900 uppercase">FULL ACADEMIC THESIS REPORT</h2>
-                        <button onclick="copyReportText()" class="px-3.5 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-sm">Copy Thesis Report</button>
+                
+                <!-- TOP HEADER BANNER (MATCHING REFERENCE) -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex justify-between items-center relative overflow-hidden">
+                    <div class="flex items-center gap-4 z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+                            <i class="fa-solid fa-file-lines text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-base font-black text-slate-900 tracking-tight leading-snug">
+                                Hybrid Multi-Modal Machine Learning Architecture for Border Security Risk Assessment<br>& Explainable Decision Support
+                            </h1>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5">Research Prototype Implementation & Empirical Evaluation Report</p>
+                        </div>
                     </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl h-[520px] overflow-y-auto custom-scrollbar font-mono text-xs text-slate-800 leading-relaxed whitespace-pre-wrap" id="reportContentBox">Loading report...</div>
+
+                    <div class="flex items-center gap-3 z-10">
+                        <span class="px-3 py-1 rounded-full text-xs font-black text-blue-600 bg-blue-50 border border-blue-200 uppercase">RESEARCH PROTOTYPE</span>
+                        <button onclick="copyReportText()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                            <i class="fa-regular fa-copy text-xs"></i>
+                            <span>Copy Full Thesis</span>
+                        </button>
+                    </div>
+
+                    <!-- Subtle Mountain Silhouette -->
+                    <div class="absolute right-0 bottom-0 opacity-15 pointer-events-none w-80 text-blue-900">
+                        <svg viewBox="0 0 300 80" class="w-full h-full fill-current">
+                            <polygon points="0,80 50,30 100,55 160,20 220,60 300,35 300,80" />
+                            <rect x="250" y="10" width="12" height="70" />
+                            <rect x="245" y="5" width="22" height="8" rx="2" />
+                        </svg>
+                    </div>
                 </div>
+
+                <!-- CARD 01: INTRODUCTION & BACKGROUND -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">01</span>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-tight">1. INTRODUCTION & BACKGROUND</h2>
+                        </div>
+                        <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
+                    </div>
+
+                    <div class="text-xs text-slate-700 leading-relaxed flex flex-col gap-3 font-medium">
+                        <p>
+                            Border security operations along rugged, mountainous terrain are fundamentally constrained by asymmetric geographical barriers, dynamic micro-climates, dense vegetative concealment corridors, and operational patrol coverage gaps. Traditional surveillance approaches rely either on isolated human observation posts or disjoint sensor networks.
+                        </p>
+                        <p>
+                            Modern defense intelligence requires a unified, multi-modal decision support framework capable of ingesting diverse modalities—ranging from digital elevation models (DEM) and remote-sensing vegetation indices (NDVI) to meteorological forecasts, operational patrol shift schedules, historical infiltration attempts, and simulated thermal/optical camera triggers and acoustic/seismic sensor signals.
+                        </p>
+                        <p>
+                            This report documents the architectural design, implementation, and empirical validation of the <b>EMBARIA Border Risk Intelligence System</b> (<code>border_infli_ai</code>), a research-grade prototype validated on the Srinagar Sector border region across 150 spatial zones (<code>SGR_ZONE_001</code> to <code>SGR_ZONE_150</code>).
+                        </p>
+                    </div>
+
+                    <!-- Objective Callout Box -->
+                    <div class="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-2xl flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-bullseye text-sm"></i>
+                        </div>
+                        <div class="text-xs text-blue-950 font-semibold leading-snug">
+                            <span class="font-black text-blue-800 uppercase text-[10px] block">Objective:</span>
+                            To design and evaluate a hybrid multi-modal ML system that predicts and explains border infiltration risk at a fine spatial granularity and supports actionable operational decisions.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 02: LITERATURE REVIEW & RELATED WORK -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">02</span>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-tight">2. LITERATURE REVIEW & RELATED WORK</h2>
+                        </div>
+                        <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
+                    </div>
+
+                    <p class="text-xs text-slate-700 font-medium">
+                        Prior research in automated border surveillance has largely focused on single-domain approaches:
+                    </p>
+
+                    <!-- 5 Grid Cards -->
+                    <div class="grid grid-cols-5 gap-3 text-xs">
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center mb-2">
+                                    <i class="fa-solid fa-video text-xs"></i>
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] leading-tight mb-1">Computer Vision & Aerial UAV Tracking</h3>
+                                <p class="text-[10px] text-slate-500 leading-snug">Applications of YOLOv8 and CNNs for human/vehicle detection along border perimeters.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2">
+                                    <i class="fa-solid fa-map-location-dot text-xs"></i>
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] leading-tight mb-1">Geospatial Analysis & Terrain Modeling</h3>
+                                <p class="text-[10px] text-slate-500 leading-snug">GIS-based slope and terrain cost-distance algorithms (e.g., Tobler's hiking function).</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center mb-2">
+                                    <i class="fa-solid fa-satellite text-xs"></i>
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] leading-tight mb-1">Remote Sensing & Vegetation Indices</h3>
+                                <p class="text-[10px] text-slate-500 leading-snug">NDVI, NDWI, and land cover studies for concealment assessment.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center mb-2">
+                                    <i class="fa-solid fa-calendar-days text-xs"></i>
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] leading-tight mb-1">Patrol Scheduling & Operations</h3>
+                                <p class="text-[10px] text-slate-500 leading-snug">Optimization models for patrol route planning and resource allocation.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <div class="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center mb-2">
+                                    <i class="fa-solid fa-shield-halved text-xs"></i>
+                                </div>
+                                <h3 class="font-black text-slate-900 text-[11px] leading-tight mb-1">Anomaly Detection & Time-Series</h3>
+                                <p class="text-[10px] text-slate-500 leading-snug">Isolation Forest, LSTM, and statistical methods for intrusion pattern detection.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Research Gap Callout Box -->
+                    <div class="p-3.5 bg-indigo-50/70 border border-indigo-200/80 rounded-2xl flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                            <i class="fa-regular fa-star text-sm"></i>
+                        </div>
+                        <div class="text-xs text-indigo-950 font-semibold leading-snug">
+                            <span class="font-black text-indigo-800 uppercase text-[10px] block">Research Gap:</span>
+                            Limited studies integrate multi-modal environmental, operational, historical, and surveillance data with explainability for actionable border risk intelligence.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 03: SYSTEM ARCHITECTURE & DATA FUSION -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">03</span>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-tight">3. SYSTEM ARCHITECTURE & MULTI-MODAL DATA FUSION</h2>
+                        </div>
+                        <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
+                    </div>
+
+                    <p class="text-xs text-slate-700 font-medium">
+                        The architecture unifies seven distinct data modalities into a standardized spatial matrix across 150 zones:
+                    </p>
+
+                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed">
+Terrain (519k DEM Pts) ──┐
+Weather (Atmospheric) ───┤
+Vegetation (NDVI) ───────┤
+Patrol Logs (1.8k Shifts)┼───> Spatial Normalization ───> Fused Master Matrix (150 × 48)
+Historical (5.2k Events) ┤                                          │
+Camera (1.2k Triggers) ──┤                                          ├───> Stratified 5-Fold Cross-Validation
+Sensors (1.5k Readings) ─┘                                          │
+                                                                    ├───> SHAP TreeExplainer Local/Global Attribution
+                                                                    │
+                                                                    └───> Decision Engine ───> Personnel Allocation Index
+                    </div>
+                </div>
+
+                <!-- CARD 04: MODEL BENCHMARK & CROSS-VALIDATION -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">04</span>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-tight">4. 5-FOLD STRATIFIED CROSS-VALIDATION & ABLATION STUDY</h2>
+                        </div>
+                        <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-5">
+                        <!-- Benchmark Table -->
+                        <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                            <h3 class="text-xs font-black text-slate-900 uppercase mb-2">MODEL PERFORMANCE BENCHMARK</h3>
+                            <table class="w-full text-xs text-left">
+                                <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                    <tr><th class="pb-2">Model</th><th class="pb-2">Accuracy</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-slate-700">
+                                    <tr class="font-bold"><td class="py-2 text-slate-900">Logistic Regression (Top)</td><td class="py-2">0.7400</td><td class="py-2 text-emerald-600">0.7296</td><td class="py-2 text-blue-600">0.8755</td></tr>
+                                    <tr><td class="py-2 text-slate-900">Random Forest</td><td class="py-2">0.6200</td><td class="py-2">0.5474</td><td class="py-2">0.7549</td></tr>
+                                    <tr><td class="py-2 text-slate-900">XGBoost Classifier</td><td class="py-2">0.6667</td><td class="py-2">0.6176</td><td class="py-2">0.7539</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Feature Ablation Table -->
+                        <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                            <h3 class="text-xs font-black text-slate-900 uppercase mb-2">FEATURE ABLATION PROGRESSION</h3>
+                            <table class="w-full text-xs text-left">
+                                <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                    <tr><th class="pb-2">Stage</th><th class="pb-2">Features</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-slate-700">
+                                    <tr><td class="py-1.5">Exp 1: Environmental Only</td><td class="py-1.5">17</td><td class="py-1.5">0.4720</td><td class="py-1.5">0.5808</td></tr>
+                                    <tr><td class="py-1.5">Exp 2: Env + Patrol Logs</td><td class="py-1.5">26</td><td class="py-1.5">0.4967</td><td class="py-1.5">0.6076</td></tr>
+                                    <tr><td class="py-1.5">Exp 3: Env + Patrol + History</td><td class="py-1.5">32</td><td class="py-1.5">0.5923</td><td class="py-1.5">0.7097</td></tr>
+                                    <tr class="font-bold text-emerald-700 bg-emerald-50/60"><td class="py-1.5">Exp 4: Full Multi-Modal</td><td class="py-1.5">42</td><td class="py-1.5">0.7296 (+25.8%)</td><td class="py-1.5">0.8755</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 05: DECISION ENGINE & OPERATIONAL GUIDANCE -->
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">05</span>
+                            <h2 class="text-sm font-black text-slate-900 uppercase tracking-tight">5. DECISION ENGINE & RELATIVE RESOURCE ALLOCATION INDEX</h2>
+                        </div>
+                        <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
+                    </div>
+
+                    <div class="text-xs text-slate-700 leading-relaxed font-medium flex flex-col gap-2.5">
+                        <p>
+                            To maintain scientific defensibility and avoid inventing uncalibrated military troop deployments, the system formulates recommendations using a dataset-derived <b>Personnel Allocation Index</b> ($I_{\text{alloc}}$) relative to a standard 80% patrol coverage baseline:
+                        </p>
+
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-center text-xs font-bold text-slate-900">
+                            I_{\text{alloc}} = 1.0 + \left(\frac{\text{Coverage Gap}}{100}\right) \times 1.2 + \left(\frac{\text{Risk Score} - 50}{150}\right)
+                        </div>
+
+                        <p>
+                            An index of <b>1.08× baseline</b> denotes that approximately 8% more patrol-resource coverage is recommended relative to the configured operational baseline during identified high-risk intervals.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Raw Report Hidden Container (For Copy Functionality) -->
+                <div id="reportContentBox" class="hidden"></div>
+
             </div>
 
             <!-- FOOTER -->
