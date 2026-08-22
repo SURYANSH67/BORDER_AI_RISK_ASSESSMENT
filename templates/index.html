@@ -52,20 +52,23 @@
 <body class="h-screen flex flex-col overflow-hidden bg-slate-50 text-slate-900">
 
     <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200/90 px-6 py-3 flex justify-between items-center z-30 flex-shrink-0">
+    <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center z-30 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-sm">
-                <i class="fa-solid fa-shield-halved text-lg"></i>
+            <button onclick="toggleMobileSidebar()" class="md:hidden w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200 transition" title="Toggle Navigation">
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                <i class="fa-solid fa-shield-halved text-base sm:text-lg"></i>
             </div>
             <div>
-                <h1 class="text-base font-black text-slate-900 tracking-tight leading-tight">BORDER RISK INTELLIGENCE</h1>
-                <p class="text-xs text-slate-500 font-medium">Dataset-Driven • Multi-Modal Risk Assessment</p>
+                <h1 class="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight">BORDER RISK INTELLIGENCE</h1>
+                <p class="text-[10px] sm:text-xs text-slate-500 font-medium hidden sm:block">Dataset-Driven • Multi-Modal Risk Assessment</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-6 text-xs text-slate-600">
+        <div class="flex items-center gap-3 sm:gap-6 text-xs text-slate-600">
             <!-- Location -->
-            <div class="flex items-center gap-2">
+            <div class="hidden sm:flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-slate-400 text-sm"></i>
                 <div class="leading-tight">
                     <div class="font-bold text-slate-800">Srinagar Sector</div>
@@ -78,69 +81,69 @@
                 <i class="fa-regular fa-clock text-slate-400 text-sm"></i>
                 <div class="leading-tight">
                     <div class="font-bold text-slate-800" id="headerTime">11:37 AM</div>
-                    <div class="text-[10px] text-slate-400" id="headerDate">Aug 22, 2026</div>
+                    <div class="text-[10px] text-slate-400 hidden xs:block" id="headerDate">Aug 22, 2026</div>
                 </div>
             </div>
 
             <!-- Avatar -->
-            <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0">
                 <i class="fa-solid fa-user text-xs"></i>
             </div>
         </div>
     </header>
 
     <!-- MAIN WRAPPER -->
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden relative">
 
-        <!-- LEFT SIDEBAR: ALL 8 NAVBAR ITEMS ACTIVE -->
-        <aside class="w-56 bg-white border-r border-slate-200/90 flex flex-col justify-between p-3 flex-shrink-0 z-20">
+        <!-- Mobile overlay backdrop -->
+        <div id="mobileSidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/40 z-40 hidden md:hidden transition-opacity"></div>
+
+        <!-- LEFT SIDEBAR: ALL 8 NAVBAR ITEMS (SYSTEM STATUS REMOVED) -->
+        <aside id="mainSidebar" class="w-60 md:w-56 bg-white border-r border-slate-200/90 flex flex-col justify-between p-3 flex-shrink-0 fixed md:relative inset-y-0 left-0 z-50 md:z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out shadow-xl md:shadow-none">
+            <div class="flex items-center justify-between md:hidden pb-2 mb-2 border-b border-slate-100">
+                <span class="text-xs font-black text-slate-900 uppercase tracking-wider">Navigation Menu</span>
+                <button onclick="toggleMobileSidebar()" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
             <nav class="flex flex-col gap-1 text-xs">
-                <button onclick="switchView('tab-overview')" class="nav-btn nav-btn-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-semibold" id="nav-tab-overview">
+                <button onclick="switchView('tab-overview'); closeMobileSidebar();" class="nav-btn nav-btn-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-semibold" id="nav-tab-overview">
                     <i class="fa-solid fa-house w-4 text-center"></i>
                     <span>Overview</span>
                 </button>
-                <button onclick="switchView('tab-map')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-map">
+                <button onclick="switchView('tab-map'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-map">
                     <i class="fa-solid fa-map-location-dot w-4 text-center"></i>
                     <span>Risk Map</span>
                 </button>
-                <button onclick="switchView('tab-analysis')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-analysis">
+                <button onclick="switchView('tab-analysis'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-analysis">
                     <i class="fa-regular fa-circle-dot w-4 text-center"></i>
                     <span>Zone Analysis</span>
                 </button>
-                <button onclick="switchView('tab-surveillance')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-surveillance">
+                <button onclick="switchView('tab-surveillance'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-surveillance">
                     <i class="fa-solid fa-video w-4 text-center"></i>
                     <span>Surveillance</span>
                 </button>
-                <button onclick="switchView('tab-sensors')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-sensors">
+                <button onclick="switchView('tab-sensors'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-sensors">
                     <i class="fa-solid fa-satellite-dish w-4 text-center"></i>
                     <span>Sensors</span>
                 </button>
-                <button onclick="switchView('tab-scenario')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-scenario">
+                <button onclick="switchView('tab-scenario'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-scenario">
                     <i class="fa-solid fa-flask w-4 text-center"></i>
                     <span>Scenario Lab</span>
                 </button>
-                <button onclick="switchView('tab-intelligence')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-intelligence">
+                <button onclick="switchView('tab-intelligence'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-intelligence">
                     <i class="fa-regular fa-file-lines w-4 text-center"></i>
                     <span>Dataset Intelligence</span>
                 </button>
-                <button onclick="switchView('tab-reports')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-reports">
+                <button onclick="switchView('tab-reports'); closeMobileSidebar();" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-reports">
                     <i class="fa-regular fa-newspaper w-4 text-center"></i>
                     <span>Reports</span>
                 </button>
             </nav>
 
-            <!-- Bottom Status -->
+            <!-- Bottom Silhouette Illustration (System Status Removed) -->
             <div class="pt-4 border-t border-slate-100 flex flex-col gap-2 relative">
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 z-10">
-                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">SYSTEM STATUS</div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span class="text-xs font-black text-emerald-700 tracking-wide">OPERATIONAL</span>
-                    </div>
-                    <div class="text-[10px] text-slate-400 mt-0.5 font-medium">All Systems Normal</div>
-                </div>
-
-                <!-- Watchtower Silhouette Illustration -->
                 <div class="w-full flex justify-center text-blue-100/70 mt-1 pointer-events-none">
                     <svg viewBox="0 0 100 50" class="w-24 h-12 fill-current">
                         <path d="M5,48 L35,20 L65,20 L95,48 Z" opacity="0.5"></path>
@@ -153,83 +156,83 @@
         </aside>
 
         <!-- MAIN SCROLLABLE CONTENT AREA -->
-        <main class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[#f8fafc] flex flex-col gap-5">
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-3.5 sm:p-5 lg:p-6 bg-[#f8fafc] flex flex-col gap-4 sm:gap-5">
 
             <!-- ========================================================================= -->
             <!-- 1. 🏠 OVERVIEW (MASTER COMMAND OVERVIEW) -->
             <!-- ========================================================================= -->
-            <div id="tab-overview" class="view-panel flex flex-col gap-5">
+            <div id="tab-overview" class="view-panel flex flex-col gap-4 sm:gap-5">
 
-                <!-- 1. Top 5 KPI Cards -->
-                <div class="grid grid-cols-5 gap-4">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('All')">
+                <!-- 1. Top 5 KPI Cards (Responsive Grid) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('All')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">TOTAL ZONES</span>
-                            <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpiTotal">150</div>
-                            <span class="text-[11px] text-slate-500 font-medium">All Sectors</span>
+                            <div class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5" id="kpiTotal">150</div>
+                            <span class="text-[10px] sm:text-[11px] text-slate-500 font-medium">Srinagar Sector</span>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500">
-                            <i class="fa-solid fa-map text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500">
+                            <i class="fa-solid fa-map text-sm sm:text-base"></i>
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Critical')">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Critical')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">CRITICAL</span>
-                            <div class="text-2xl font-black text-red-500 mt-0.5" id="kpiCritical">5</div>
-                            <span class="text-[11px] text-red-500 font-bold">&gt;72% Risk</span>
+                            <div class="text-xl sm:text-2xl font-black text-red-500 mt-0.5" id="kpiCritical">15</div>
+                            <span class="text-[10px] sm:text-[11px] text-red-500 font-bold">&gt;72% Risk</span>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
-                            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
+                            <i class="fa-solid fa-triangle-exclamation text-sm sm:text-base"></i>
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('High')">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('High')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">HIGH</span>
-                            <div class="text-2xl font-black text-orange-500 mt-0.5" id="kpiHigh">40</div>
-                            <span class="text-[11px] text-orange-500 font-bold">51% - 72% Risk</span>
+                            <div class="text-xl sm:text-2xl font-black text-orange-500 mt-0.5" id="kpiHigh">52</div>
+                            <span class="text-[10px] sm:text-[11px] text-orange-500 font-bold">51% - 72% Risk</span>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
-                            <i class="fa-solid fa-circle-exclamation text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500">
+                            <i class="fa-solid fa-circle-exclamation text-sm sm:text-base"></i>
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Medium')">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Medium')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">MEDIUM</span>
-                            <div class="text-2xl font-black text-amber-500 mt-0.5" id="kpiMedium">86</div>
-                            <span class="text-[11px] text-amber-500 font-bold">26% - 50% Risk</span>
+                            <div class="text-xl sm:text-2xl font-black text-amber-500 mt-0.5" id="kpiMedium">67</div>
+                            <span class="text-[10px] sm:text-[11px] text-amber-500 font-bold">26% - 50% Risk</span>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
-                            <i class="fa-solid fa-bell text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500">
+                            <i class="fa-solid fa-bell text-sm sm:text-base"></i>
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Low')">
+                    <div class="col-span-2 sm:col-span-1 bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Low')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">LOW</span>
-                            <div class="text-2xl font-black text-emerald-500 mt-0.5" id="kpiLow">19</div>
-                            <span class="text-[11px] text-emerald-500 font-bold">0% - 25% Risk</span>
+                            <div class="text-xl sm:text-2xl font-black text-emerald-500 mt-0.5" id="kpiLow">16</div>
+                            <span class="text-[10px] sm:text-[11px] text-emerald-500 font-bold">0% - 25% Risk</span>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
-                            <i class="fa-solid fa-shield-check text-base"></i>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-500">
+                            <i class="fa-solid fa-shield-check text-sm sm:text-base"></i>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. Sector Risk Map & Selected Zone -->
-                <div class="grid grid-cols-12 gap-5">
+                <!-- 2. Sector Risk Map & Selected Zone (Responsive 1-col on mobile, 12-col on desktop) -->
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-5">
 
-                    <!-- SECTOR RISK MAP (7 COLS) -->
-                    <div class="col-span-7 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between relative">
-                        <div class="flex justify-between items-center mb-2">
+                    <!-- SECTOR RISK MAP (7 COLS ON XL) -->
+                    <div class="xl:col-span-7 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between relative">
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
                             <div>
                                 <span class="text-xs font-black text-slate-900 uppercase tracking-tight">SECTOR RISK MAP</span>
-                                <span class="text-[10px] text-slate-500 font-medium ml-2">Srinagar Sector — Spatial Risk Analysis • 150 Dataset-Derived Analysis Zones</span>
+                                <span class="text-[10px] text-slate-500 font-medium ml-1 sm:ml-2">Srinagar Sector • 150 Analysis Zones</span>
                             </div>
                             <div class="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Contiguous Spatial Mesh
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Contiguous Mesh
                             </div>
                         </div>
 
@@ -267,37 +270,37 @@
                         </div>
                     </div>
 
-                    <!-- SELECTED ZONE ANALYSIS CARD (5 COLS) -->
-                    <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col justify-between">
+                    <!-- SELECTED ZONE ANALYSIS CARD (5 COLS ON XL) -->
+                    <div class="xl:col-span-5 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">SELECTED ZONE</div>
                             <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-xl font-black text-slate-900 tracking-tight" id="dashZoneId">SGR_ZONE_126</h2>
+                                <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight" id="dashZoneId">SGR_ZONE_126</h2>
                                 <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase" id="dashRiskBadge">CRITICAL</span>
                             </div>
 
-                            <div class="flex items-center gap-6 mb-5">
+                            <div class="flex items-center gap-4 sm:gap-6 mb-5">
                                 <!-- Radial Gauge -->
                                 <div class="radial-meter-outer flex-shrink-0" id="dashRadialMeter">
                                     <div class="radial-meter-inner text-center">
-                                        <div class="text-lg font-black text-slate-900" id="dashRiskScore">95%</div>
-                                        <div class="text-[8px] font-bold text-slate-400 uppercase tracking-wider">RISK SCORE</div>
+                                        <div class="text-base sm:text-lg font-black text-slate-900" id="dashRiskScore">95%</div>
+                                        <div class="text-[7px] sm:text-[8px] font-bold text-slate-400 uppercase tracking-wider">RISK SCORE</div>
                                     </div>
                                 </div>
 
-                                <div class="flex flex-col gap-2.5 text-xs flex-1">
+                                <div class="flex flex-col gap-2 text-xs flex-1">
                                     <div>
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Confidence</span>
                                         <div class="flex items-center gap-1.5">
-                                            <span class="text-sm font-black text-emerald-600" id="dashConfidencePct">82%</span>
+                                            <span class="text-xs sm:text-sm font-black text-emerald-600" id="dashConfidencePct">82%</span>
                                             <span class="text-[10px] text-slate-400 font-semibold" id="dashConfidenceLevel">High</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trend (7 Days)</span>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trend</span>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-red-600 text-xs" id="dashTrendText">Rising</span>
-                                            <div class="w-16 h-5 text-red-500">
+                                            <div class="w-14 sm:w-16 h-5 text-red-500">
                                                 <svg viewBox="0 0 50 20" class="w-full h-full stroke-current fill-none stroke-2"><path d="M2,16 L12,14 L24,15 L36,9 L48,5"></path></svg>
                                             </div>
                                         </div>
@@ -307,14 +310,14 @@
                         </div>
 
                         <!-- ZONE PRIORITY BOX -->
-                        <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex justify-between items-center">
+                        <div class="bg-slate-50 border border-slate-100 p-3 sm:p-3.5 rounded-xl flex justify-between items-center">
                             <div>
                                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ZONE PRIORITY</span>
                                 <div class="text-xs font-black text-red-600" id="dashPriorityTitle">IMMEDIATE ACTION REQUIRED</div>
-                                <p class="text-[11px] text-slate-500 mt-0.5" id="dashPriorityDesc">High risk due to operational and terrain factors.</p>
+                                <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5" id="dashPriorityDesc">High risk due to operational and terrain factors.</p>
                             </div>
-                            <div class="text-slate-300 pr-2">
-                                <i class="fa-solid fa-tower-observation text-2xl opacity-60"></i>
+                            <div class="text-slate-300 pr-1 sm:pr-2 hidden sm:block">
+                                <i class="fa-solid fa-tower-observation text-xl sm:text-2xl opacity-60"></i>
                             </div>
                         </div>
 
@@ -322,11 +325,11 @@
 
                 </div>
 
-                <!-- 3. TOP RISK DRIVERS | AI ASSESSMENT | WHAT NEEDS ATTENTION? -->
-                <div class="grid grid-cols-12 gap-5">
+                <!-- 3. TOP RISK DRIVERS | AI ASSESSMENT | WHAT NEEDS ATTENTION? (Responsive Grids) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 lg:gap-5">
 
                     <!-- COLUMN 1: TOP RISK DRIVERS (SHAP SUMMARY) -->
-                    <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-5 md:col-span-2 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <span class="text-xs font-black text-slate-900 uppercase tracking-tight">TOP RISK DRIVERS <span class="text-[10px] text-slate-400 font-normal">(SHAP SUMMARY)</span></span>
@@ -345,7 +348,7 @@
                     </div>
 
                     <!-- COLUMN 2: AI ASSESSMENT -->
-                    <div class="col-span-4 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-4 md:col-span-1 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="flex items-center gap-2 mb-2">
                                 <i class="fa-solid fa-gear text-blue-600 text-xs"></i>
@@ -371,7 +374,7 @@
                     </div>
 
                     <!-- COLUMN 3: WHAT NEEDS ATTENTION? -->
-                    <div class="col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-3 md:col-span-1 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">WHAT NEEDS ATTENTION?</div>
                             
@@ -388,58 +391,58 @@
 
                 </div>
 
-                <!-- 4. BOTTOM ROW: SURVEILLANCE OVERVIEW | SENSOR ACTIVITY OVERVIEW | RECENT ALERTS -->
-                <div class="grid grid-cols-12 gap-5 mb-2">
+                <!-- 4. BOTTOM ROW: SURVEILLANCE OVERVIEW | SENSOR ACTIVITY OVERVIEW | RECENT ALERTS (Responsive) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 lg:gap-5 mb-2">
 
                     <!-- SURVEILLANCE OVERVIEW -->
-                    <div class="col-span-4 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-4 md:col-span-1 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">
-                                SURVEILLANCE OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED FROM CSV DATA)</span>
+                                SURVEILLANCE OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED)</span>
                             </div>
 
                             <div class="flex items-center gap-4 mb-3">
-                                <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xl flex-shrink-0">
+                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-lg sm:text-xl flex-shrink-0">
                                     <i class="fa-solid fa-video"></i>
                                 </div>
                                 <div>
                                     <span class="text-[9px] text-slate-400 font-bold uppercase block">CAMERA ACTIVITY</span>
-                                    <div class="text-xl font-black text-slate-900" id="survActivityScore">0.50</div>
+                                    <div class="text-lg sm:text-xl font-black text-slate-900" id="survActivityScore">0.50</div>
                                     <span class="text-[10px] font-bold" id="survActivityBadge">Moderate</span>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-2 text-xs">
                                 <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Human Detections</span>
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Human Count</span>
                                     <span class="text-sm font-black text-slate-900" id="survHumanCount">4</span>
                                 </div>
                                 <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Vehicle Detections</span>
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Vehicle Count</span>
                                     <span class="text-sm font-black text-slate-900" id="survVehicleCount">2</span>
                                 </div>
                                 <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Night Movements</span>
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Night Shifts</span>
                                     <span class="text-sm font-black text-slate-900" id="survNightCount">3</span>
                                 </div>
                                 <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Events in this zone</span>
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Zone Events</span>
                                     <span class="text-sm font-black text-slate-900" id="dashSurvZoneEvents">9</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex justify-between items-center text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-2">
-                            <span>Sector dataset: 1,200 events</span>
-                            <span>Dataset-derived • Not live feed</span>
+                            <span>Sector: 1,200 events</span>
+                            <span>Dataset-derived</span>
                         </div>
                     </div>
 
                     <!-- SENSOR ACTIVITY OVERVIEW -->
-                    <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-5 md:col-span-1 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">
-                                SENSOR ACTIVITY OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED FROM CSV DATA)</span>
+                                SENSOR ACTIVITY OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED)</span>
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 text-center mb-2">
@@ -472,7 +475,7 @@
                                     <span class="text-[8px] font-bold px-1 rounded" id="dashSnsVibrationBadge">Low</span>
                                 </div>
                                 <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
-                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Overall Sensor Score</span>
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Overall</span>
                                     <div class="text-xs font-black text-slate-900 my-0.5" id="dashSnsOverallVal">0.38</div>
                                     <span class="text-[8px] font-bold px-1 rounded" id="dashSnsOverallBadge">Moderate</span>
                                 </div>
@@ -480,26 +483,17 @@
                         </div>
 
                         <div class="flex justify-between items-center text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-2">
-                            <span>Sector dataset: 1,500 readings</span>
-                            <span>Multi-sensor fusion • Dataset-derived</span>
+                            <span>Sector: 1,500 readings</span>
+                            <span>Multi-sensor fusion</span>
                         </div>
                     </div>
 
                     <!-- RECENT ALERTS -->
-                    <div class="col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                    <div class="xl:col-span-3 md:col-span-2 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-2.5">RECENT ALERTS</div>
                             <div class="flex flex-col gap-2.5 text-xs text-slate-700" id="dashRecentAlertsList">
                                 <!-- Populated dynamically for selected zone -->
-                            </div>
-                        </div>
-                                <div class="flex items-start gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500 mt-1 flex-shrink-0"></span>
-                                    <div class="flex-1 text-[11px] leading-tight">
-                                        <span class="font-bold text-slate-900">Notice: Weather visibility reduced in northern corridor.</span>
-                                        <span class="text-[9px] text-slate-400 block mt-0.5">3h ago</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -561,11 +555,11 @@
             <!-- ========================================================================= -->
             <!-- 3. 🎯 ZONE ANALYSIS (SIGNATURE DECISION-GRADE XAI SUITE) -->
             <!-- ========================================================================= -->
-            <div id="tab-analysis" class="view-panel hidden flex flex-col gap-5">
+            <div id="tab-analysis" class="view-panel hidden flex flex-col gap-4 sm:gap-5">
                 
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Select Zone For In-Depth Analysis:</span>
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Select Zone For Analysis:</span>
                         <select id="zaSelectBox" class="bg-slate-50 border border-slate-200 text-xs font-black text-slate-900 py-1.5 px-3 rounded-lg focus:outline-none focus:border-slate-900" onchange="inspectZone(this.value)">
                             <!-- Populated via JS -->
                         </select>
@@ -577,48 +571,48 @@
                 </div>
 
                 <!-- AI Assessment Card -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col gap-3">
-                    <div class="flex justify-between items-start">
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow flex flex-col gap-3">
+                    <div class="flex flex-wrap justify-between items-start gap-2">
                         <div>
                             <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider block">EXECUTIVE AI ASSESSMENT</span>
-                            <div class="flex items-center gap-3 mt-1">
-                                <h2 class="text-2xl font-black text-slate-900" id="zaZoneId">SGR_ZONE_126</h2>
+                            <div class="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900" id="zaZoneId">SGR_ZONE_126</h2>
                                 <span class="text-xs font-black px-3 py-1 rounded-full uppercase" id="zaRiskBadge">CRITICAL RISK — 95.00%</span>
                             </div>
                         </div>
-                        <div class="text-right">
+                        <div class="text-left sm:text-right">
                             <span class="text-[10px] font-bold text-slate-400 uppercase block">Model Confidence</span>
                             <span class="text-xs font-black text-emerald-700" id="zaModelConfidence">High (89.1% Class Probability)</span>
                         </div>
                     </div>
 
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-800 leading-relaxed font-medium" id="zaExecutiveSummary">
+                    <div class="p-3.5 sm:p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-800 leading-relaxed font-medium" id="zaExecutiveSummary">
                         Loading assessment...
                     </div>
                 </div>
 
                 <!-- DECISION ENGINE: RESOURCE ALLOCATION & OPERATIONAL DIRECTIVE -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col gap-3">
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow flex flex-col gap-3">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-100 pb-2.5">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-scale-balanced text-blue-600 text-sm"></i>
-                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">DECISION ENGINE: RESOURCE ALLOCATION & OPERATIONAL GUIDANCE</h3>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">DECISION ENGINE: RESOURCE ALLOCATION & GUIDANCE</h3>
                         </div>
                         <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase" id="deDecisionStatusBadge">IMMEDIATE REVIEW & PATROL SURGE</span>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-3 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <span class="text-[9px] font-bold text-slate-400 uppercase block">Personnel Allocation Index</span>
-                            <div class="text-lg font-black text-slate-900 mt-0.5" id="dePersonnelIndex">1.25× baseline</div>
+                            <div class="text-base sm:text-lg font-black text-slate-900 mt-0.5" id="dePersonnelIndex">1.25× baseline</div>
                             <span class="text-[10px] text-slate-500 font-medium" id="deIndexMeaning">Estimates approximately 25% more patrol-resource coverage relative to baseline.</span>
                         </div>
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <span class="text-[9px] font-bold text-slate-400 uppercase block">Patrol Coverage Posture</span>
-                            <div class="text-sm font-black text-slate-900 mt-0.5" id="dePatrolGapText">73.9% vs 80% Baseline</div>
+                            <div class="text-xs sm:text-sm font-black text-slate-900 mt-0.5" id="dePatrolGapText">73.9% vs 80% Baseline</div>
                             <span class="text-[10px] font-bold text-orange-600" id="deGapStatusText">6.1 percentage points deficit (Below Baseline)</span>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="col-span-1 sm:col-span-2 lg:col-span-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <span class="text-[9px] font-bold text-slate-400 uppercase block">Recommended Resource Level</span>
                             <div class="text-xs font-black text-slate-900 mt-0.5" id="deResourceLevelText">Moderate reinforcement / additional monitoring required</div>
                             <span class="text-[10px] text-slate-500">Relative dataset-driven recommendation.</span>
@@ -631,9 +625,9 @@
                     </div>
                 </div>
 
-                <!-- Drivers & Attention -->
-                <div class="grid grid-cols-12 gap-5">
-                    <div class="col-span-6 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col justify-between">
+                <!-- Drivers & Attention (Responsive Grid) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5">
+                    <div class="lg:col-span-6 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow flex flex-col justify-between">
                         <div>
                             <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">RISK DRIVERS (WHY THIS SCORE?)</h3>
                             <p class="text-[11px] text-slate-500 mb-3">Positive factors escalate risk; negative factors mitigate risk.</p>
@@ -641,12 +635,12 @@
                         </div>
                     </div>
 
-                    <div class="col-span-6 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                    <div class="lg:col-span-6 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
                         <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">WHAT NEEDS ATTENTION?</h3>
                         <p class="text-[11px] text-slate-500 mb-3">5-second parameter status checklist.</p>
                         
                         <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left">
+                            <table class="w-full text-xs text-left min-w-[320px]">
                                 <thead>
                                     <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase">
                                         <th class="pb-1.5">Parameter</th>
@@ -660,17 +654,17 @@
                     </div>
                 </div>
 
-                <!-- Evidence Grid -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                <!-- Evidence Grid (Responsive) -->
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">SUPPORTING MULTI-MODAL EVIDENCE</h3>
-                    <div class="grid grid-cols-5 gap-3 text-xs" id="zaEvidenceGrid"></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 text-xs" id="zaEvidenceGrid"></div>
                 </div>
 
-                <!-- Deep SHAP Charts -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                <!-- Deep SHAP Charts (Responsive) -->
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
                     <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">TECHNICAL SHAP TREEEXPLAINER DETAIL</h3>
                     <p class="text-[11px] text-slate-500 mb-3">Mathematical feature attributions supporting the decision engine.</p>
-                    <div class="grid grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                         <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
                             <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Local Zone Attributions</span>
                             <div class="h-56"><canvas id="zaLocalShapChart"></canvas></div>
@@ -687,9 +681,9 @@
             <!-- ========================================================================= -->
             <!-- 4. 📹 SURVEILLANCE DATA ANALYSIS (DATASET-DERIVED SIMULATION) -->
             <!-- ========================================================================= -->
-            <div id="tab-surveillance" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow">
-                    <div class="flex justify-between items-start mb-4">
+            <div id="tab-surveillance" class="view-panel hidden flex flex-col gap-4 sm:gap-5">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 card-shadow">
+                    <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
                         <div>
                             <h2 class="text-sm font-black text-slate-900 uppercase">SURVEILLANCE DATA ANALYSIS</h2>
                             <p class="text-xs text-slate-500">Dataset-derived optical/thermal camera event features across 1,200 simulated events.</p>
@@ -697,27 +691,27 @@
                         <span class="text-[10px] bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold">1,200 DATASET-DERIVED CAMERA EVENTS ANALYZED</span>
                     </div>
 
-                    <div class="grid grid-cols-12 gap-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5">
                         <!-- Camera Stats -->
-                        <div class="col-span-6 p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                        <div class="lg:col-span-6 col-span-1 p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA ACTIVITY ANALYSIS</h3>
                                 <div class="grid grid-cols-2 gap-3 text-xs mb-4">
-                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Human Detections</span>
-                                        <span class="text-xl font-black text-slate-900" id="survHumanCountFull">12</span>
+                                        <span class="text-lg sm:text-xl font-black text-slate-900" id="survHumanCountFull">12</span>
                                     </div>
-                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Vehicle Detections</span>
-                                        <span class="text-xl font-black text-slate-900" id="survVehicleCountFull">6</span>
+                                        <span class="text-lg sm:text-xl font-black text-slate-900" id="survVehicleCountFull">6</span>
                                     </div>
-                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Night Movements</span>
-                                        <span class="text-xl font-black text-slate-900" id="survNightCountFull">18</span>
+                                        <span class="text-lg sm:text-xl font-black text-slate-900" id="survNightCountFull">18</span>
                                     </div>
-                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Camera Activity Score</span>
-                                        <span class="text-xl font-black text-orange-600" id="survActivityScoreFull">0.72</span>
+                                        <span class="text-lg sm:text-xl font-black text-orange-600" id="survActivityScoreFull">0.72</span>
                                     </div>
                                 </div>
                             </div>
@@ -739,19 +733,21 @@
                         </div>
 
                         <!-- Camera Timeline Table -->
-                        <div class="col-span-6 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div class="lg:col-span-6 col-span-1 p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200">
                             <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA EVENT LOG (SAMPLE)</h3>
-                            <table class="w-full text-xs text-left">
-                                <thead class="border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase">
-                                    <tr><th class="pb-2">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 text-[11px] text-slate-700">
-                                    <tr><td class="py-2.5 font-mono">11:32:15</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">2 Humans</span></td><td>0.94</td></tr>
-                                    <tr><td class="py-2.5 font-mono">11:15:02</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-bold">1 Vehicle</span></td><td>0.89</td></tr>
-                                    <tr><td class="py-2.5 font-mono">10:48:40</td><td>SGR_ZONE_094</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">3 Humans</span></td><td>0.96</td></tr>
-                                    <tr><td class="py-2.5 font-mono">10:20:11</td><td>SGR_ZONE_001</td><td><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Routine</span></td><td>0.82</td></tr>
-                                </tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left min-w-[320px]">
+                                    <thead class="border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase">
+                                        <tr><th class="pb-2">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-[11px] text-slate-700">
+                                        <tr><td class="py-2.5 font-mono">11:32:15</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">2 Humans</span></td><td>0.94</td></tr>
+                                        <tr><td class="py-2.5 font-mono">11:15:02</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-bold">1 Vehicle</span></td><td>0.89</td></tr>
+                                        <tr><td class="py-2.5 font-mono">10:48:40</td><td>SGR_ZONE_094</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">3 Humans</span></td><td>0.96</td></tr>
+                                        <tr><td class="py-2.5 font-mono">10:20:11</td><td>SGR_ZONE_001</td><td><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Routine</span></td><td>0.82</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="text-[9px] text-slate-400 mt-4 pt-2 border-t border-slate-200">
                                 Simulated from CSV surveillance logs • Multi-modal integration validation
                             </div>
@@ -763,9 +759,9 @@
             <!-- ========================================================================= -->
             <!-- 5. 📡 SENSORS TELEMETRY SUITE -->
             <!-- ========================================================================= -->
-            <div id="tab-sensors" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <div class="flex justify-between items-start mb-4">
+            <div id="tab-sensors" class="view-panel hidden flex flex-col gap-4 sm:gap-5">
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
+                    <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
                         <div>
                             <h2 class="text-sm font-black text-slate-900 uppercase">MULTI-SENSOR TELEMETRY ARRAY</h2>
                             <p class="text-xs text-slate-500">Acoustic, seismic, infrared, and motion sensors consolidated across 1,500 telemetry records.</p>
@@ -773,8 +769,8 @@
                         <span class="text-[10px] bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold">1,500 READINGS</span>
                     </div>
 
-                    <div class="grid grid-cols-12 gap-5">
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5">
+                        <div class="lg:col-span-6 col-span-1 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black text-slate-900 uppercase mb-3">SENSOR ARRAY PROGRESS BARS</h3>
                                 <div class="flex flex-col gap-3 text-xs mb-4">
@@ -808,7 +804,7 @@
                         </div>
 
                         <!-- Waveform Graph -->
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div class="lg:col-span-6 col-span-1 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black text-slate-900 uppercase mb-2">SEISMIC & ACOUSTIC TELEMETRY SIGNAL</h3>
                                 <div class="h-56"><canvas id="sensorWaveformChart"></canvas></div>
@@ -821,26 +817,26 @@
             <!-- ========================================================================= -->
             <!-- 6. 🧪 SCENARIO LAB ("WHAT-IF" ANALYSIS) -->
             <!-- ========================================================================= -->
-            <div id="tab-scenario" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <div class="flex justify-between items-start mb-4">
+            <div id="tab-scenario" class="view-panel hidden flex flex-col gap-4 sm:gap-5">
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
+                    <div class="flex flex-wrap justify-between items-start gap-2 mb-4">
                         <div>
                             <h2 class="text-sm font-black text-slate-900 uppercase">SCENARIO ANALYSIS (DATASET BASELINE SIMULATION)</h2>
                             <p class="text-xs text-slate-500">Evaluate hypothetical operational variations against dataset baseline features.</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
-                        <span class="font-bold text-slate-500 uppercase text-[10px]">Scenario Presets:</span>
-                        <button onclick="applyLabPreset('normal')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Standard Baseline</button>
-                        <button onclick="applyLabPreset('night_surge')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Night Infiltration Surge</button>
-                        <button onclick="applyLabPreset('seismic_anomaly')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Seismic Telemetry Spike</button>
-                        <button onclick="applyLabPreset('patrol_deficit')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Patrol Gap Surge</button>
+                    <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
+                        <span class="font-bold text-slate-500 uppercase text-[10px]">Presets:</span>
+                        <button onclick="applyLabPreset('normal')" class="px-2.5 sm:px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Standard Baseline</button>
+                        <button onclick="applyLabPreset('night_surge')" class="px-2.5 sm:px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Night Surge</button>
+                        <button onclick="applyLabPreset('seismic_anomaly')" class="px-2.5 sm:px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Seismic Spike</button>
+                        <button onclick="applyLabPreset('patrol_deficit')" class="px-2.5 sm:px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Patrol Gap Surge</button>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-3">
-                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-200 pb-2">
                                 <span class="text-xs font-bold uppercase text-slate-700">Select Zone for Simulation</span>
                                 <select id="simZonePicker" class="bg-white border border-slate-200 text-xs font-bold text-slate-900 py-1 px-2.5 rounded-lg" onchange="onSimZoneChange(this.value)">
                                     <!-- Populated via JS -->
@@ -870,23 +866,23 @@
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black uppercase text-slate-900 mb-3">SCENARIO COMPARISON</h3>
-                                <div class="grid grid-cols-3 gap-3 mb-4">
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">BASELINE</span>
-                                        <div class="text-lg font-black text-slate-900" id="labBaselineScore">95.00%</div>
+                                <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+                                    <div class="bg-white p-2.5 sm:p-3 rounded-lg border border-slate-200 text-center">
+                                        <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">BASELINE</span>
+                                        <div class="text-base sm:text-lg font-black text-slate-900" id="labBaselineScore">95.00%</div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">SCENARIO</span>
-                                        <div class="text-lg font-black text-orange-600" id="labScenarioScore">98.50%</div>
+                                    <div class="bg-white p-2.5 sm:p-3 rounded-lg border border-slate-200 text-center">
+                                        <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">SCENARIO</span>
+                                        <div class="text-base sm:text-lg font-black text-orange-600" id="labScenarioScore">98.50%</div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">CHANGE</span>
-                                        <div class="text-lg font-black text-red-600" id="labChangeScore">+3.50%</div>
+                                    <div class="bg-white p-2.5 sm:p-3 rounded-lg border border-slate-200 text-center">
+                                        <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">CHANGE</span>
+                                        <div class="text-base sm:text-lg font-black text-red-600" id="labChangeScore">+3.50%</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
+                            <div class="bg-white p-3 sm:p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
                                 <span class="font-black text-slate-900 block mb-0.5">Why did risk change?</span>
                                 <span id="labReasonText">Increased surveillance activity and reduced patrol coverage contributed to the simulated increase in risk.</span>
                             </div>
@@ -898,10 +894,10 @@
             <!-- ========================================================================= -->
             <!-- 7. 📊 DATASET INTELLIGENCE (VIVA / DEFENSE VIEW) -->
             <!-- ========================================================================= -->
-            <div id="tab-intelligence" class="view-panel hidden flex flex-col gap-5">
+            <div id="tab-intelligence" class="view-panel hidden flex flex-col gap-4 sm:gap-5">
                 
-                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
-                    <div class="flex justify-between items-center">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2">
                         <div>
                             <h2 class="text-sm font-black text-slate-900 uppercase">DATA SOURCES INVENTORY & CATEGORIZATION</h2>
                             <p class="text-xs text-slate-500 font-medium">Clear distinction between physical/operational datasets and CSV-derived simulated telemetry.</p>
@@ -910,31 +906,31 @@
                     </div>
 
                     <!-- Pipeline Banner -->
-                    <div class="p-3 bg-slate-900 text-white rounded-2xl flex items-center justify-between text-xs font-semibold">
+                    <div class="p-3 bg-slate-900 text-white rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Methodology Pipeline:</span>
-                        <div class="flex items-center gap-2 text-[11px] overflow-x-auto">
+                        <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] overflow-x-auto py-1">
                             <span>Multiple Datasets</span>
                             <span class="text-slate-500">&rarr;</span>
                             <span>Standardization</span>
                             <span class="text-slate-500">&rarr;</span>
-                            <span>Zone-Level Fusion</span>
+                            <span>Fusion</span>
                             <span class="text-slate-500">&rarr;</span>
-                            <span class="text-emerald-400 font-bold">ML Risk Prediction</span>
+                            <span class="text-emerald-400 font-bold">ML Risk</span>
                             <span class="text-slate-500">&rarr;</span>
-                            <span class="text-blue-400 font-bold">SHAP Explanation</span>
+                            <span class="text-blue-400 font-bold">SHAP</span>
                             <span class="text-slate-500">&rarr;</span>
-                            <span>Decision Support</span>
+                            <span>Decisions</span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <!-- 1. Actual Datasets -->
                         <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 flex flex-col gap-3">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                 <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">ACTUAL DATASETS (Physical & Operational)</h3>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div class="bg-white p-2.5 rounded-xl border border-slate-200">
                                     <span class="text-slate-400 text-[9px] font-bold block uppercase">Terrain Dataset</span>
                                     <div class="text-sm font-black text-slate-900 mt-0.5">519,841 points</div>
@@ -955,7 +951,7 @@
                                     <div class="text-sm font-black text-slate-900 mt-0.5">1,800 Shift Logs</div>
                                     <span class="text-[9px] text-slate-500">Sector Shift Records</span>
                                 </div>
-                                <div class="bg-white p-2.5 rounded-xl border border-slate-200 col-span-2">
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200 col-span-1 sm:col-span-2">
                                     <span class="text-slate-400 text-[9px] font-bold block uppercase">Historical Infiltration Dataset</span>
                                     <div class="text-sm font-black text-slate-900 mt-0.5">5,231 Incident Records</div>
                                     <span class="text-[9px] text-slate-500">Geospatial Event Logbook</span>
@@ -969,7 +965,7 @@
                                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                 <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">SIMULATED / DERIVED DATA (From CSV Features)</h3>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div class="bg-white p-2.5 rounded-xl border border-slate-200">
                                     <span class="text-slate-400 text-[9px] font-bold block uppercase">Camera Events Dataset</span>
                                     <div class="text-sm font-black text-slate-900 mt-0.5">1,200 Events</div>
@@ -996,9 +992,9 @@
                 </div>
 
                 <!-- Fusion Flow Diagram -->
-                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 card-shadow">
                     <h2 class="text-sm font-black text-slate-900 uppercase mb-3">MULTI-MODAL DATA FUSION ARCHITECTURE</h2>
-                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed">
+                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-[11px] overflow-x-auto leading-relaxed">
 Terrain (519k DEM Pts) ──┐
 Weather (Atmospheric) ───┤
 Vegetation (NDVI) ───────┤
@@ -1013,34 +1009,38 @@ Sensors (1.5k Readings) ─┘                                          │
                 </div>
 
                 <!-- 5-Fold CV & Ablation -->
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
                         <h3 class="text-xs font-black text-slate-900 uppercase mb-2">5-FOLD STRATIFIED CV BENCHMARK</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                <tr><th class="p-2">Model</th><th class="p-2">Accuracy</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700">
-                                <tr><td class="p-2 font-bold text-slate-900">Logistic Regression (Baseline)</td><td class="p-2">0.7400</td><td class="p-2 font-bold text-emerald-600">0.7296</td><td class="p-2 font-bold text-blue-600">0.8755</td></tr>
-                                <tr><td class="p-2 font-bold text-slate-900">Random Forest (TreeExplainer)</td><td class="p-2">0.6200</td><td class="p-2">0.5474</td><td class="p-2">0.7549</td></tr>
-                                <tr><td class="p-2 font-bold text-slate-900">XGBoost (Comparison)</td><td class="p-2">0.6667</td><td class="p-2">0.6176</td><td class="p-2">0.7539</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left min-w-[280px]">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                    <tr><th class="p-2">Model</th><th class="p-2">Accuracy</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-slate-700">
+                                    <tr><td class="p-2 font-bold text-slate-900">Logistic Regression (Baseline)</td><td class="p-2">0.7400</td><td class="p-2 font-bold text-emerald-600">0.7296</td><td class="p-2 font-bold text-blue-600">0.8755</td></tr>
+                                    <tr><td class="p-2 font-bold text-slate-900">Random Forest (TreeExplainer)</td><td class="p-2">0.6200</td><td class="p-2">0.5474</td><td class="p-2">0.7549</td></tr>
+                                    <tr><td class="p-2 font-bold text-slate-900">XGBoost (Comparison)</td><td class="p-2">0.6667</td><td class="p-2">0.6176</td><td class="p-2">0.7539</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 card-shadow">
                         <h3 class="text-xs font-black text-slate-900 uppercase mb-2">FEATURE ABLATION STUDY (+25.76% F1 GAIN)</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                <tr><th class="p-2">Experiment Stage</th><th class="p-2">Features</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700">
-                                <tr><td class="p-2">Exp 1: Environmental Only</td><td class="p-2">17</td><td class="p-2">0.4720</td><td class="p-2">0.5808</td></tr>
-                                <tr><td class="p-2">Exp 2: Env + Operational Patrol</td><td class="p-2">26</td><td class="p-2">0.4967</td><td class="p-2">0.6076</td></tr>
-                                <tr><td class="p-2">Exp 3: Env + Op + Historical Logs</td><td class="p-2">32</td><td class="p-2">0.5923</td><td class="p-2">0.7097</td></tr>
-                                <tr class="bg-emerald-50/50 font-bold"><td class="p-2 text-emerald-800">Exp 4: Full Multi-Modal System</td><td class="p-2">42</td><td class="p-2 text-emerald-700">0.7296 (+25.8%)</td><td class="p-2 text-blue-700">0.8755</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left min-w-[280px]">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                    <tr><th class="p-2">Experiment Stage</th><th class="p-2">Features</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-slate-700">
+                                    <tr><td class="p-2">Exp 1: Environmental Only</td><td class="p-2">17</td><td class="p-2">0.4720</td><td class="p-2">0.5808</td></tr>
+                                    <tr><td class="p-2">Exp 2: Env + Operational Patrol</td><td class="p-2">26</td><td class="p-2">0.4967</td><td class="p-2">0.6076</td></tr>
+                                    <tr><td class="p-2">Exp 3: Env + Op + Historical Logs</td><td class="p-2">32</td><td class="p-2">0.5923</td><td class="p-2">0.7097</td></tr>
+                                    <tr class="bg-emerald-50/50 font-bold"><td class="p-2 text-emerald-800">Exp 4: Full Multi-Modal System</td><td class="p-2">42</td><td class="p-2 text-emerald-700">0.7296 (+25.8%)</td><td class="p-2 text-blue-700">0.8755</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -1131,8 +1131,8 @@ Sensors (1.5k Readings) ─┘                                          │
                         Prior research in automated border surveillance has largely focused on single-domain approaches:
                     </p>
 
-                    <!-- 5 Grid Cards -->
-                    <div class="grid grid-cols-5 gap-3 text-xs">
+                    <!-- 5 Grid Cards (Responsive) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
                         <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
                             <div>
                                 <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center mb-2">
@@ -1173,7 +1173,7 @@ Sensors (1.5k Readings) ─┘                                          │
                             </div>
                         </div>
 
-                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between">
+                        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl flex flex-col justify-between col-span-1 sm:col-span-2 lg:col-span-1">
                             <div>
                                 <div class="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center mb-2">
                                     <i class="fa-solid fa-shield-halved text-xs"></i>
@@ -1197,7 +1197,7 @@ Sensors (1.5k Readings) ─┘                                          │
                 </div>
 
                 <!-- CARD 03: SYSTEM ARCHITECTURE & DATA FUSION -->
-                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 card-shadow flex flex-col gap-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-3">
                             <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">03</span>
@@ -1210,7 +1210,7 @@ Sensors (1.5k Readings) ─┘                                          │
                         The architecture unifies seven distinct data modalities into a standardized spatial matrix across 150 zones:
                     </p>
 
-                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed">
+                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-[11px] overflow-x-auto leading-relaxed">
 Terrain (519k DEM Pts) ──┐
 Weather (Atmospheric) ───┤
 Vegetation (NDVI) ───────┤
@@ -1225,7 +1225,7 @@ Sensors (1.5k Readings) ─┘                                          │
                 </div>
 
                 <!-- CARD 04: MODEL BENCHMARK & CROSS-VALIDATION -->
-                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 card-shadow flex flex-col gap-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-3">
                             <span class="w-7 h-7 rounded-lg bg-blue-700 text-white text-xs font-black flex items-center justify-center">04</span>
@@ -1234,36 +1234,40 @@ Sensors (1.5k Readings) ─┘                                          │
                         <i class="fa-regular fa-bookmark text-slate-400 text-sm"></i>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                         <!-- Benchmark Table -->
                         <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
                             <h3 class="text-xs font-black text-slate-900 uppercase mb-2">MODEL PERFORMANCE BENCHMARK</h3>
-                            <table class="w-full text-xs text-left">
-                                <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                    <tr><th class="pb-2">Model</th><th class="pb-2">Accuracy</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 text-slate-700">
-                                    <tr class="font-bold"><td class="py-2 text-slate-900">Logistic Regression (Top)</td><td class="py-2">0.7400</td><td class="py-2 text-emerald-600">0.7296</td><td class="py-2 text-blue-600">0.8755</td></tr>
-                                    <tr><td class="py-2 text-slate-900">Random Forest</td><td class="py-2">0.6200</td><td class="py-2">0.5474</td><td class="py-2">0.7549</td></tr>
-                                    <tr><td class="py-2 text-slate-900">XGBoost Classifier</td><td class="py-2">0.6667</td><td class="py-2">0.6176</td><td class="py-2">0.7539</td></tr>
-                                </tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left min-w-[280px]">
+                                    <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                        <tr><th class="pb-2">Model</th><th class="pb-2">Accuracy</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                                        <tr class="font-bold"><td class="py-2 text-slate-900">Logistic Regression (Top)</td><td class="py-2">0.7400</td><td class="py-2 text-emerald-600">0.7296</td><td class="py-2 text-blue-600">0.8755</td></tr>
+                                        <tr><td class="py-2 text-slate-900">Random Forest</td><td class="py-2">0.6200</td><td class="py-2">0.5474</td><td class="py-2">0.7549</td></tr>
+                                        <tr><td class="py-2 text-slate-900">XGBoost Classifier</td><td class="py-2">0.6667</td><td class="py-2">0.6176</td><td class="py-2">0.7539</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <!-- Feature Ablation Table -->
                         <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
                             <h3 class="text-xs font-black text-slate-900 uppercase mb-2">FEATURE ABLATION PROGRESSION</h3>
-                            <table class="w-full text-xs text-left">
-                                <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                    <tr><th class="pb-2">Stage</th><th class="pb-2">Features</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 text-slate-700">
-                                    <tr><td class="py-1.5">Exp 1: Environmental Only</td><td class="py-1.5">17</td><td class="py-1.5">0.4720</td><td class="py-1.5">0.5808</td></tr>
-                                    <tr><td class="py-1.5">Exp 2: Env + Patrol Logs</td><td class="py-1.5">26</td><td class="py-1.5">0.4967</td><td class="py-1.5">0.6076</td></tr>
-                                    <tr><td class="py-1.5">Exp 3: Env + Patrol + History</td><td class="py-1.5">32</td><td class="py-1.5">0.5923</td><td class="py-1.5">0.7097</td></tr>
-                                    <tr class="font-bold text-emerald-700 bg-emerald-50/60"><td class="py-1.5">Exp 4: Full Multi-Modal</td><td class="py-1.5">42</td><td class="py-1.5">0.7296 (+25.8%)</td><td class="py-1.5">0.8755</td></tr>
-                                </tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left min-w-[280px]">
+                                    <thead class="border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
+                                        <tr><th class="pb-2">Stage</th><th class="pb-2">Features</th><th class="pb-2">F1-Score</th><th class="pb-2">ROC-AUC</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                                        <tr><td class="py-1.5">Exp 1: Environmental Only</td><td class="py-1.5">17</td><td class="py-1.5">0.4720</td><td class="py-1.5">0.5808</td></tr>
+                                        <tr><td class="py-1.5">Exp 2: Env + Patrol Logs</td><td class="py-1.5">26</td><td class="py-1.5">0.4967</td><td class="py-1.5">0.6076</td></tr>
+                                        <tr><td class="py-1.5">Exp 3: Env + Patrol + History</td><td class="py-1.5">32</td><td class="py-1.5">0.5923</td><td class="py-1.5">0.7097</td></tr>
+                                        <tr class="font-bold text-emerald-700 bg-emerald-50/60"><td class="py-1.5">Exp 4: Full Multi-Modal</td><td class="py-1.5">42</td><td class="py-1.5">0.7296 (+25.8%)</td><td class="py-1.5">0.8755</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2719,7 +2723,31 @@ Sensors (1.5k Readings) ─┘                                          │
             });
         }
 
+        function toggleMobileSidebar() {
+            const sb = document.getElementById('mainSidebar');
+            const bd = document.getElementById('mobileSidebarBackdrop');
+            if (sb && bd) {
+                if (sb.classList.contains('-translate-x-full')) {
+                    sb.classList.remove('-translate-x-full');
+                    bd.classList.remove('hidden');
+                } else {
+                    sb.classList.add('-translate-x-full');
+                    bd.classList.add('hidden');
+                }
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sb = document.getElementById('mainSidebar');
+            const bd = document.getElementById('mobileSidebarBackdrop');
+            if (sb && bd) {
+                sb.classList.add('-translate-x-full');
+                bd.classList.add('hidden');
+            }
+        }
+
         function switchView(tabId) {
+            closeMobileSidebar();
             document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-btn-active'));
 
@@ -2730,10 +2758,10 @@ Sensors (1.5k Readings) ─┘                                          │
             if (targetNav) targetNav.classList.add('nav-btn-active');
 
             if (tabId === 'tab-overview') {
-                setTimeout(() => sectorMapInstance.invalidateSize(), 150);
+                setTimeout(() => { if (sectorMapInstance) sectorMapInstance.invalidateSize(); }, 150);
             } else if (tabId === 'tab-map') {
                 initFullscreenGisMap();
-                setTimeout(() => fullscreenGisMapInstance.invalidateSize(), 150);
+                setTimeout(() => { if (fullscreenGisMapInstance) fullscreenGisMapInstance.invalidateSize(); }, 150);
             }
         }
 
