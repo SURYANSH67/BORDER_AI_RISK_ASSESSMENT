@@ -239,7 +239,47 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
         "spatial_summary": spatial_summary
     }
 
-    # 10. AI Assessment & Natural Language Summary
+    # 10. Structured Attention Checklist Parameters
+    attention_parameters = [
+        {
+            "parameter": "Patrol Coverage",
+            "status": "Review" if cov_gap > 0 else "Normal",
+            "badge_color": "amber" if cov_gap > 0 else "emerald",
+            "reason": f"Current coverage {current_cov:.1f}% vs {target_cov:.0f}% target baseline" if cov_gap > 0 else "Coverage meets target operational baseline"
+        },
+        {
+            "parameter": "Patrol Gap Duration",
+            "status": "Review" if max_gap_hours > 8.0 else "Normal",
+            "badge_color": "amber" if max_gap_hours > 8.0 else "emerald",
+            "reason": f"Maximum gap of {max_gap_hours:.1f}h exceeds 8h operational threshold" if max_gap_hours > 8.0 else "Patrol gap duration within standard limits"
+        },
+        {
+            "parameter": "Camera Activity",
+            "status": "Elevated" if camera["activity_score"] > 0.3 else "Normal",
+            "badge_color": "orange" if camera["activity_score"] > 0.3 else "emerald",
+            "reason": f"{camera['human_count']} human / {camera['vehicle_count']} vehicle detection triggers" if camera["activity_score"] > 0.3 else "Routine baseline detection activity"
+        },
+        {
+            "parameter": "Sensor Activity",
+            "status": "Elevated" if sensors["activity_score"] > 0.4 else "Normal",
+            "badge_color": "orange" if sensors["activity_score"] > 0.4 else "emerald",
+            "reason": f"Elevated telemetry signal score ({sensors['activity_score']:.2f})" if sensors["activity_score"] > 0.4 else "No significant sensor telemetry anomaly"
+        },
+        {
+            "parameter": "Weather / Visibility",
+            "status": "Review" if environmental["visibility"] < 5000 else "Normal",
+            "badge_color": "amber" if environmental["visibility"] < 5000 else "emerald",
+            "reason": f"Reduced atmospheric visibility ({environmental['visibility']:.0f}m)" if environmental["visibility"] < 5000 else "Atmospheric visibility conditions stable"
+        },
+        {
+            "parameter": "Historical Risk",
+            "status": "Elevated" if historical["event_count"] > 30 else "Normal",
+            "badge_color": "orange" if historical["event_count"] > 30 else "emerald",
+            "reason": f"{historical['event_count']} recorded historical events in incident log" if historical["event_count"] > 30 else "Low historical infiltration frequency"
+        }
+    ]
+
+    # 11. AI Assessment & Natural Language Summary
     ai_assessment = {
         "risk_score": risk_score,
         "risk_level": risk_level,
@@ -248,12 +288,12 @@ def get_zone_analysis(zone_id="SGR_ZONE_001",
         "attention_levels": {
             "patrol": "Elevated" if cov_gap > 5.0 else "Normal",
             "surveillance": "Elevated" if (camera["activity_score"] > 0.3 or sensors["activity_score"] > 0.3) else "Routine",
-            "environmental": "High" if environmental["terrain_risk"] > 0.4 else "Moderate",
-            "historical": "High" if historical["event_count"] > 35 else "Moderate"
+            "environmental": "High" if (environmental["terrain_risk"] > 0.4 or environmental["weather_risk"] > 0.4) else "Moderate",
+            "historical": "High" if historical["event_count"] > 40 else "Moderate"
         }
     }
 
-    # 11. SHAP Drivers (TreeExplainer)
+    # 12. SHAP Drivers (TreeExplainer)
     escalating = []
     mitigating = []
 
@@ -322,6 +362,7 @@ ZONE ANALYSIS BRIEF — {zone_id}
         "trend": trend,
         "trend_direction": trend_direction,
         "ai_assessment": ai_assessment,
+        "attention_parameters": attention_parameters,
         "patrol_assessment": patrol_assessment,
         "driver_interpretations": driver_interpretations,
         "mitigation_factors": mitigation_factors,
