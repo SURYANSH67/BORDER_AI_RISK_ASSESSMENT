@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Border Risk Intelligence — Decision-Grade Multi-Modal Analysis</title>
+    <title>Border Risk Intelligence — Dataset-Driven Multi-Modal Risk Assessment</title>
     <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,7 +13,7 @@
                     colors: {
                         brandBg: '#f8fafc',
                         brandNavy: '#0f172a',
-                        brandNavyLight: '#1e293b',
+                        brandBlue: '#2563eb',
                         riskCritical: '#ef4444',
                         riskHigh: '#f97316',
                         riskMedium: '#eab308',
@@ -40,8 +40,10 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04); }
-        .nav-pill-active { background-color: #1e293b !important; color: #ffffff !important; font-weight: 700 !important; }
-        #gisMap { width: 100%; height: 100%; z-index: 1; border-radius: 0.75rem; }
+        .nav-btn-active { background-color: #eff6ff !important; color: #2563eb !important; font-weight: 700 !important; }
+        #sectorMap, #fullscreenGisMap { width: 100%; height: 100%; z-index: 1; border-radius: 0.75rem; }
+        .radial-meter-outer { position: relative; width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(#ef4444 0% 95%, #f1f5f9 95% 100%); }
+        .radial-meter-inner { width: 84px; height: 84px; border-radius: 50%; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
         .cctv-scanline { background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; }
         .bounding-box { position: absolute; border: 2px solid #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); pointer-events: none; }
         .bounding-label { position: absolute; top: -18px; left: -2px; background: rgba(34, 197, 94, 0.9); color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 2px; text-transform: uppercase; }
@@ -49,54 +51,51 @@
 </head>
 <body class="h-screen flex flex-col overflow-hidden bg-slate-50 text-slate-900">
 
-    <!-- 1. TOP BAR: CLEAN COMMAND BRANDING -->
+    <!-- TOP HEADER -->
     <header class="bg-white border-b border-slate-200/90 px-6 py-3 flex justify-between items-center z-30 flex-shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-sm">
                 <i class="fa-solid fa-shield-halved text-lg"></i>
             </div>
             <div>
-                <div class="flex items-center gap-2.5">
-                    <h1 class="text-base font-black text-slate-900 tracking-tight leading-tight">BORDER RISK INTELLIGENCE</h1>
-                    <span class="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">RESEARCH PROTOTYPE</span>
-                    <span class="text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded font-semibold uppercase tracking-wider">DATASET-DRIVEN</span>
-                </div>
-                <p class="text-xs text-slate-500 font-medium">Explainable Multi-Modal Risk Analysis & Decision Support</p>
+                <h1 class="text-base font-black text-slate-900 tracking-tight leading-tight">BORDER RISK INTELLIGENCE</h1>
+                <p class="text-xs text-slate-500 font-medium">Dataset-Driven • Multi-Modal Risk Assessment</p>
             </div>
         </div>
 
         <div class="flex items-center gap-6 text-xs text-slate-600">
-            <!-- Sector Information -->
+            <!-- Location -->
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-slate-400 text-sm"></i>
                 <div class="leading-tight">
                     <div class="font-bold text-slate-800">Srinagar Sector</div>
-                    <div class="text-[10px] text-slate-400">150 Spatial Zones</div>
+                    <div class="text-[10px] text-slate-400">150 Zones</div>
                 </div>
             </div>
 
-            <!-- Date & Time -->
+            <!-- Live Clock & Date -->
             <div class="flex items-center gap-2">
                 <i class="fa-regular fa-clock text-slate-400 text-sm"></i>
                 <div class="leading-tight">
-                    <div class="font-bold text-slate-800" id="headerTime">10:46 AM</div>
-                    <div class="text-[10px] text-slate-400" id="headerDate">May 24, 2025</div>
+                    <div class="font-bold text-slate-800" id="headerTime">11:37 AM</div>
+                    <div class="text-[10px] text-slate-400" id="headerDate">Aug 22, 2026</div>
                 </div>
             </div>
 
+            <!-- Avatar Circle -->
             <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
                 <i class="fa-solid fa-user text-xs"></i>
             </div>
         </div>
     </header>
 
-    <!-- 2. BODY LAYOUT: 6-TAB LEFT NAV + MAIN WORKSPACE -->
+    <!-- MAIN APP WRAPPER: SIDEBAR + CONTENT -->
     <div class="flex flex-1 overflow-hidden">
 
         <!-- LEFT SIDEBAR -->
         <aside class="w-56 bg-white border-r border-slate-200/90 flex flex-col justify-between p-3 flex-shrink-0 z-20">
             <nav class="flex flex-col gap-1 text-xs">
-                <button onclick="switchView('tab-overview')" class="nav-btn nav-pill-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-semibold" id="nav-tab-overview">
+                <button onclick="switchView('tab-overview')" class="nav-btn nav-btn-active flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-semibold" id="nav-tab-overview">
                     <i class="fa-solid fa-house w-4 text-center"></i>
                     <span>Overview</span>
                 </button>
@@ -105,46 +104,67 @@
                     <span>Risk Map</span>
                 </button>
                 <button onclick="switchView('tab-analysis')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-analysis">
-                    <i class="fa-solid fa-bullseye w-4 text-center"></i>
+                    <i class="fa-regular fa-circle-dot w-4 text-center"></i>
                     <span>Zone Analysis</span>
                 </button>
                 <button onclick="switchView('tab-surveillance')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-surveillance">
-                    <i class="fa-solid fa-camera w-4 text-center"></i>
+                    <i class="fa-solid fa-video w-4 text-center"></i>
                     <span>Surveillance</span>
                 </button>
+                <button onclick="switchView('tab-sensors')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-sensors">
+                    <i class="fa-solid fa-satellite-dish w-4 text-center"></i>
+                    <span>Sensors</span>
+                </button>
                 <button onclick="switchView('tab-scenario')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-scenario">
-                    <i class="fa-solid fa-flask-vial w-4 text-center"></i>
+                    <i class="fa-solid fa-flask w-4 text-center"></i>
                     <span>Scenario Lab</span>
                 </button>
                 <button onclick="switchView('tab-intelligence')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-intelligence">
-                    <i class="fa-solid fa-database w-4 text-center"></i>
+                    <i class="fa-regular fa-file-lines w-4 text-center"></i>
                     <span>Dataset Intelligence</span>
+                </button>
+                <button onclick="switchView('tab-reports')" class="nav-btn flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 transition w-full text-left font-medium" id="nav-tab-reports">
+                    <i class="fa-regular fa-newspaper w-4 text-center"></i>
+                    <span>Reports</span>
                 </button>
             </nav>
 
-            <!-- Bottom System Status -->
-            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
-                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+            <!-- Bottom: System Status & Watchtower Graphic -->
+            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2 relative">
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 z-10">
                     <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">SYSTEM STATUS</div>
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                         <span class="text-xs font-black text-emerald-700 tracking-wide">OPERATIONAL</span>
                     </div>
+                    <div class="text-[10px] text-slate-400 mt-0.5 font-medium">All Systems Normal</div>
+                </div>
+
+                <!-- Watchtower Silhouette Illustration -->
+                <div class="w-full flex justify-center text-blue-100/70 mt-1 pointer-events-none">
+                    <svg viewBox="0 0 100 50" class="w-24 h-12 fill-current">
+                        <path d="M5,48 L35,20 L65,20 L95,48 Z" opacity="0.5"></path>
+                        <path d="M42,20 L45,8 L55,8 L58,20 Z"></path>
+                        <rect x="44" y="4" width="12" height="5" rx="1"></rect>
+                        <line x1="50" y1="4" x2="50" y2="0" stroke="currentColor" stroke-width="2"></line>
+                    </svg>
                 </div>
             </div>
         </aside>
 
-        <!-- MAIN SCROLLABLE CONTENT AREA -->
+        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[#f8fafc] flex flex-col gap-5">
 
             <!-- ========================================================================= -->
-            <!-- TAB 1: 🏠 OVERVIEW (COMMAND SECTOR OVERVIEW) -->
+            <!-- VIEW 1: OVERVIEW (MASTER DASHBOARD MATCHING USER SCREENSHOT) -->
             <!-- ========================================================================= -->
             <div id="tab-overview" class="view-panel flex flex-col gap-5">
 
-                <!-- 1. Top KPI Summary Cards -->
+                <!-- 1. TOP ROW: 5 KPI METRIC CARDS -->
                 <div class="grid grid-cols-5 gap-4">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('All')">
+                    
+                    <!-- KPI 1: TOTAL ZONES -->
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="filterOverview('All')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">TOTAL ZONES</span>
                             <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpiTotal">150</div>
@@ -155,7 +175,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Critical')">
+                    <!-- KPI 2: CRITICAL -->
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="filterOverview('Critical')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">CRITICAL</span>
                             <div class="text-2xl font-black text-red-500 mt-0.5" id="kpiCritical">5</div>
@@ -166,7 +187,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('High')">
+                    <!-- KPI 3: HIGH -->
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="filterOverview('High')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">HIGH</span>
                             <div class="text-2xl font-black text-orange-500 mt-0.5" id="kpiHigh">40</div>
@@ -177,7 +199,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Medium')">
+                    <!-- KPI 4: MEDIUM -->
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="filterOverview('Medium')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">MEDIUM</span>
                             <div class="text-2xl font-black text-amber-500 mt-0.5" id="kpiMedium">86</div>
@@ -188,7 +211,8 @@
                         </div>
                     </div>
 
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="openMapWithFilter('Low')">
+                    <!-- KPI 5: LOW -->
+                    <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center cursor-pointer" onclick="filterOverview('Low')">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">LOW</span>
                             <div class="text-2xl font-black text-emerald-500 mt-0.5" id="kpiLow">19</div>
@@ -198,495 +222,485 @@
                             <i class="fa-solid fa-shield-check text-base"></i>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- 2. Sector Situation Hero Card -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col gap-3">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-0.5">SECTOR SITUATION</span>
-                            <h2 class="text-lg font-black text-slate-900">Overall Sector Risk: <span class="text-amber-600">MEDIUM — 48.2%</span></h2>
-                        </div>
-                        <span class="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-lg font-bold">Srinagar Border Sector (150 Zones)</span>
-                    </div>
-
-                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-700 leading-relaxed">
-                        <div class="font-bold text-slate-900 mb-1 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-info text-blue-600"></i>
-                            <span>Primary Sector Contributing Factors:</span>
-                        </div>
-                        <div class="flex flex-wrap gap-2 text-[11px] font-semibold mt-1.5">
-                            <span class="px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">Patrol Gaps (Operational Deficit)</span>
-                            <span class="px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 border border-orange-200">Vegetation Concealment (NDVI Corridor)</span>
-                            <span class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">Surveillance Telemetry (Simulated Signals)</span>
-                            <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">Terrain Natural Obstacles (High Slopes)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Two-Column Operational Split -->
+                <!-- 2. MIDDLE SECTION: SECTOR RISK MAP (LEFT) & SELECTED ZONE (RIGHT) -->
                 <div class="grid grid-cols-12 gap-5">
-                    <!-- Left (7 Cols): Critical & High Risk Zones List -->
-                    <div class="col-span-7 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">CRITICAL ZONES REQUIRING IMMEDIATE REVIEW</h3>
-                            <button onclick="switchView('tab-map')" class="text-xs font-bold text-blue-600 hover:text-blue-700">Open GIS Map &rarr;</button>
+
+                    <!-- SECTOR RISK MAP (7 COLS) -->
+                    <div class="col-span-7 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between relative">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <span class="text-xs font-black text-slate-900 uppercase tracking-wider">SECTOR RISK MAP</span>
                         </div>
-                        
-                        <div class="flex flex-col gap-2.5" id="overviewTopZonesList">
-                            <!-- Populated dynamically via JS -->
+
+                        <!-- Map Viewport -->
+                        <div class="w-full h-80 relative rounded-xl overflow-hidden border border-slate-200">
+                            <div id="sectorMap"></div>
+
+                            <!-- Left Floating Controls -->
+                            <div class="absolute top-3 left-3 z-10 flex flex-col gap-1 shadow-sm">
+                                <button onclick="sectorMapInstance.zoomIn()" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm">+</button>
+                                <button onclick="sectorMapInstance.zoomOut()" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm">-</button>
+                                <button onclick="sectorMapInstance.setView([34.0, 75.0], 8)" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm" title="Recenter"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                            </div>
+
+                            <!-- Bottom-Left Legend -->
+                            <div class="absolute bottom-3 left-3 z-10 bg-white/95 backdrop-blur-sm p-2.5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-1 text-[10px] font-semibold text-slate-700">
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Critical (&gt;72%)</span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> High (51-72%)</span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Medium (26-50%)</span>
+                                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Low (0-25%)</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right (5 Cols): Risk Breakdown & Patrol Readiness -->
+                    <!-- SELECTED ZONE ANALYSIS CARD (5 COLS) -->
                     <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">SECTOR RISK DISTRIBUTION</h3>
-                            <div class="h-44 relative flex items-center justify-center">
-                                <canvas id="overviewDonutChart"></canvas>
-                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span class="text-base font-black text-slate-800">150</span>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase">Zones</span>
+                            <!-- Header & Zone Badge -->
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">SELECTED ZONE</div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-black text-slate-900 tracking-tight" id="dashZoneId">SGR_ZONE_126</h2>
+                                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase" id="dashRiskBadge">CRITICAL</span>
+                            </div>
+
+                            <!-- Radial Score Meter & Confidence/Trend -->
+                            <div class="flex items-center gap-6 mb-5">
+                                <!-- Radial Gauge -->
+                                <div class="radial-meter-outer flex-shrink-0" id="dashRadialMeter">
+                                    <div class="radial-meter-inner text-center">
+                                        <div class="text-lg font-black text-slate-900" id="dashRiskScore">95%</div>
+                                        <div class="text-[8px] font-bold text-slate-400 uppercase tracking-wider">RISK SCORE</div>
+                                    </div>
+                                </div>
+
+                                <!-- Confidence & Trend -->
+                                <div class="flex flex-col gap-2.5 text-xs flex-1">
+                                    <div>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Confidence</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-sm font-black text-emerald-600" id="dashConfidencePct">82%</span>
+                                            <span class="text-[10px] text-slate-400 font-semibold" id="dashConfidenceLevel">High</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trend (7 Days)</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-red-600 text-xs" id="dashTrendText">Rising</span>
+                                            <!-- Red Rising Sparkline -->
+                                            <div class="w-16 h-5 text-red-500">
+                                                <svg viewBox="0 0 50 20" class="w-full h-full stroke-current fill-none stroke-2"><path d="M2,16 L12,14 L24,15 L36,9 L48,5"></path></svg>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 mt-3 text-xs text-slate-700">
-                            <div class="flex justify-between items-center mb-1 font-semibold">
-                                <span>Sector Patrol Readiness</span>
-                                <span class="font-black text-amber-600">72.4% / 80.0% Target</span>
+                        <!-- ZONE PRIORITY BOX -->
+                        <div class="bg-slate-50 border border-slate-100 p-3.5 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ZONE PRIORITY</span>
+                                <div class="text-xs font-black text-red-600" id="dashPriorityTitle">IMMEDIATE ACTION REQUIRED</div>
+                                <p class="text-[11px] text-slate-500 mt-0.5" id="dashPriorityDesc">High risk due to operational and terrain factors.</p>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                <div class="bg-amber-500 h-2 rounded-full" style="width: 72.4%;"></div>
+                            <!-- Watchtower Graphic -->
+                            <div class="text-slate-300 pr-2">
+                                <i class="fa-solid fa-tower-observation text-2xl opacity-60"></i>
                             </div>
                         </div>
+
                     </div>
+
+                </div>
+
+                <!-- 3. MIDDLE ROW: TOP RISK DRIVERS | AI ASSESSMENT | WHAT NEEDS ATTENTION? -->
+                <div class="grid grid-cols-12 gap-5">
+
+                    <!-- COLUMN 1: TOP RISK DRIVERS (SHAP SUMMARY) - 4.5 COLS -->
+                    <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-xs font-black text-slate-900 uppercase tracking-tight">TOP RISK DRIVERS <span class="text-[10px] text-slate-400 font-normal">(SHAP SUMMARY)</span></span>
+                            </div>
+
+                            <!-- Driver Bars List -->
+                            <div class="flex flex-col gap-2.5 text-xs mt-3">
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Patrol Gap Duration</span>
+                                        <span class="font-mono text-[10px] font-bold text-red-600">+0.318 <span class="text-slate-400 font-normal">High Impact</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-red-500 h-2 rounded-full" style="width: 82%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Vegetation Concealment</span>
+                                        <span class="font-mono text-[10px] font-bold text-orange-600">+0.214 <span class="text-slate-400 font-normal">High Impact</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-orange-500 h-2 rounded-full" style="width: 65%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Surveillance Activity</span>
+                                        <span class="font-mono text-[10px] font-bold text-orange-500">+0.178 <span class="text-slate-400 font-normal">Moderate</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-orange-400 h-2 rounded-full" style="width: 52%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Terrain Slope (High)</span>
+                                        <span class="font-mono text-[10px] font-bold text-amber-500">+0.128 <span class="text-slate-400 font-normal">Moderate</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-amber-400 h-2 rounded-full" style="width: 40%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Patrol Coverage</span>
+                                        <span class="font-mono text-[10px] font-bold text-emerald-600">-0.192 <span class="text-slate-400 font-normal">Mitigating</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-emerald-500 h-2 rounded-full" style="width: 58%;"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-0.5">
+                                        <span class="font-medium text-slate-700">Weather / Visibility</span>
+                                        <span class="font-mono text-[10px] font-bold text-teal-600">-0.086 <span class="text-slate-400 font-normal">Low Impact</span></span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-teal-500 h-2 rounded-full" style="width: 25%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Legend Slider Line -->
+                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center text-[9px] text-slate-400 font-semibold mt-2">
+                            <span>&larr; Decreases Risk</span>
+                            <span class="text-slate-500">SHAP Value</span>
+                            <span>Increases Risk &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2: AI ASSESSMENT - 4 COLS -->
+                    <div class="col-span-4 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-gear text-blue-600 text-xs"></i>
+                                <span class="text-xs font-black text-slate-900 uppercase tracking-tight">AI ASSESSMENT</span>
+                            </div>
+
+                            <p class="text-[11px] text-slate-700 leading-relaxed mb-3">
+                                This zone is assessed as <b>CRITICAL risk (95%)</b>. The model indicates a high probability of infiltration based on prolonged patrol gaps, difficult terrain, and elevated surveillance activity.
+                                Historical data also shows increased past events in this area.
+                            </p>
+
+                            <!-- Assessment Alert Sub-box -->
+                            <div class="bg-red-50/70 border border-red-100 p-2.5 rounded-xl mb-3">
+                                <span class="text-[10px] font-black text-red-700 uppercase tracking-wider block mb-0.5">ASSESSMENT</span>
+                                <p class="text-[11px] text-red-900 font-medium leading-snug">
+                                    Immediate review of patrol deployment and enhanced surveillance recommended.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Generate Zone Brief Button -->
+                        <button onclick="openDecisionBriefModal()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
+                            <i class="fa-regular fa-file-lines text-xs"></i>
+                            <span>Generate Zone Brief</span>
+                        </button>
+                    </div>
+
+                    <!-- COLUMN 3: WHAT NEEDS ATTENTION? - 3 COLS -->
+                    <div class="col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">WHAT NEEDS ATTENTION?</div>
+                            
+                            <div class="flex flex-col gap-2 text-xs">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-regular fa-clock text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Patrol Coverage</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">Review</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-regular fa-clock text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Patrol Gap Duration</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">Elevated</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-solid fa-video text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Surveillance Activity</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">Elevated</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-solid fa-mountain text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Terrain / Slopes</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">High</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-solid fa-cloud-sun text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Weather / Visibility</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Normal</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i class="fa-regular fa-file-lines text-slate-400 text-xs"></i>
+                                        <span class="font-medium text-[11px]">Historical Risk</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">High</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overall Priority Badge Row -->
+                        <div class="pt-2.5 border-t border-slate-100 flex justify-between items-center text-xs mt-2">
+                            <span class="font-bold text-slate-600 text-[11px]">Overall Priority</span>
+                            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black text-red-600 bg-red-50 border border-red-300 uppercase">IMMEDIATE</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 4. BOTTOM ROW: SURVEILLANCE OVERVIEW | SENSOR ACTIVITY OVERVIEW | RECENT ALERTS -->
+                <div class="grid grid-cols-12 gap-5 mb-2">
+
+                    <!-- SURVEILLANCE OVERVIEW (4 COLS) -->
+                    <div class="col-span-4 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">
+                                SURVEILLANCE OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED FROM CSV DATA)</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-3">
+                                <!-- Camera Icon Inside Circle -->
+                                <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-video"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[9px] text-slate-400 font-bold uppercase block">CAMERA ACTIVITY</span>
+                                    <div class="text-xl font-black text-slate-900" id="survActivityScore">0.72</div>
+                                    <span class="text-[10px] font-bold text-orange-600">Elevated</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Human Detections</span>
+                                    <span class="text-sm font-black text-slate-900" id="survHumanCount">12</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Vehicle Detections</span>
+                                    <span class="text-sm font-black text-slate-900" id="survVehicleCount">6</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Night Movements</span>
+                                    <span class="text-sm font-black text-slate-900" id="survNightCount">18</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Total Events Analyzed</span>
+                                    <span class="text-sm font-black text-slate-900">1,248</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-2">
+                            Dataset-derived • Not live feed
+                        </div>
+                    </div>
+
+                    <!-- SENSOR ACTIVITY OVERVIEW (4.5 COLS) -->
+                    <div class="col-span-5 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">
+                                SENSOR ACTIVITY OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED FROM CSV DATA)</span>
+                            </div>
+
+                            <!-- Top 4 Cells -->
+                            <div class="grid grid-cols-4 gap-2 text-center mb-2">
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Motion</span>
+                                    <div class="flex items-center justify-center gap-1 my-0.5 text-xs font-black text-slate-900">
+                                        <i class="fa-solid fa-person-running text-amber-500 text-[11px]"></i> 0.68
+                                    </div>
+                                    <span class="text-[8px] font-bold text-amber-600 bg-amber-50 px-1 rounded">Moderate</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Infrared</span>
+                                    <div class="flex items-center justify-center gap-1 my-0.5 text-xs font-black text-slate-900">
+                                        <i class="fa-solid fa-wifi text-red-500 text-[11px]"></i> 0.72
+                                    </div>
+                                    <span class="text-[8px] font-bold text-red-600 bg-red-50 px-1 rounded">Elevated</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Acoustic</span>
+                                    <div class="flex items-center justify-center gap-1 my-0.5 text-xs font-black text-slate-900">
+                                        <i class="fa-solid fa-volume-high text-teal-600 text-[11px]"></i> 0.45
+                                    </div>
+                                    <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded">Moderate</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Seismic</span>
+                                    <div class="flex items-center justify-center gap-1 my-0.5 text-xs font-black text-slate-900">
+                                        <i class="fa-solid fa-chart-simple text-emerald-600 text-[11px]"></i> 0.31
+                                    </div>
+                                    <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded">Low</span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom 3 Cells -->
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Acoustic</span>
+                                    <div class="text-xs font-black text-slate-900 my-0.5">0.31</div>
+                                    <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded">Low</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Vibration</span>
+                                    <div class="text-xs font-black text-slate-900 my-0.5">0.40</div>
+                                    <span class="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 rounded">Low</span>
+                                </div>
+                                <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 font-bold uppercase block">Overall Sensor Activity</span>
+                                    <div class="text-xs font-black text-slate-900 my-0.5">0.58</div>
+                                    <span class="text-[8px] font-bold text-amber-600 bg-amber-50 px-1 rounded">Moderate</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-2">
+                            Multi-sensor fusion • Dataset-derived
+                        </div>
+                    </div>
+
+                    <!-- RECENT ALERTS (2.5 COLS) -->
+                    <div class="col-span-3 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-2.5">RECENT ALERTS</div>
+                            <div class="flex flex-col gap-2.5 text-xs text-slate-700">
+                                <div class="flex items-start gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-red-500 mt-1 flex-shrink-0"></span>
+                                    <div class="flex-1 text-[11px] leading-tight">
+                                        <span class="font-bold text-slate-900">Critical: SGR_ZONE_126 exceeded 95% risk threshold.</span>
+                                        <span class="text-[9px] text-slate-400 block mt-0.5">23m ago</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-orange-500 mt-1 flex-shrink-0"></span>
+                                    <div class="flex-1 text-[11px] leading-tight">
+                                        <span class="font-bold text-slate-900">High Risk: SGR_ZONE_094 camera activity increased.</span>
+                                        <span class="text-[9px] text-slate-400 block mt-0.5">1h ago</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 mt-1 flex-shrink-0"></span>
+                                    <div class="flex-1 text-[11px] leading-tight">
+                                        <span class="font-bold text-slate-900">Notice: Weather visibility reduced in northern corridor.</span>
+                                        <span class="text-[9px] text-slate-400 block mt-0.5">3h ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="switchView('tab-map')" class="text-[11px] font-bold text-blue-600 hover:text-blue-700 text-left pt-2 border-t border-slate-100 mt-2">
+                            View All Alerts &rarr;
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
 
             <!-- ========================================================================= -->
-            <!-- TAB 2: 🗺️ RISK MAP (GIS INTERACTIVE MAP) -->
+            <!-- VIEW 2: RISK MAP FULLSCREEN -->
             <!-- ========================================================================= -->
             <div id="tab-map" class="view-panel hidden flex flex-col gap-4 h-[calc(100vh-130px)]">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex-1 flex flex-col">
-                    
-                    <!-- Search & Filter Bar -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 card-shadow flex-1 flex flex-col">
                     <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-3 flex-1 max-w-md">
-                            <div class="relative w-full">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                                <input type="text" id="mapSearchInput" placeholder="Search zone (e.g. SGR_ZONE_126)..." class="w-full bg-slate-50 border border-slate-200 text-xs text-slate-800 pl-8 pr-3 py-2 rounded-xl focus:outline-none focus:border-slate-900" oninput="onMapSearch(this.value)">
-                            </div>
-                        </div>
-
-                        <!-- Filter Pills -->
-                        <div class="flex items-center gap-1.5 text-xs">
-                            <button onclick="setMapFilter('All')" class="px-3 py-1 rounded-lg font-bold border border-slate-200 bg-slate-900 text-white map-filter-btn" id="mf-All">All (150)</button>
-                            <button onclick="setMapFilter('Critical')" class="px-3 py-1 rounded-lg font-bold border border-red-200 bg-red-50 text-red-700 map-filter-btn" id="mf-Critical">Critical (5)</button>
-                            <button onclick="setMapFilter('High')" class="px-3 py-1 rounded-lg font-bold border border-orange-200 bg-orange-50 text-orange-700 map-filter-btn" id="mf-High">High (40)</button>
-                            <button onclick="setMapFilter('Medium')" class="px-3 py-1 rounded-lg font-bold border border-amber-200 bg-amber-50 text-amber-700 map-filter-btn" id="mf-Medium">Medium (86)</button>
-                            <button onclick="setMapFilter('Low')" class="px-3 py-1 rounded-lg font-bold border border-emerald-200 bg-emerald-50 text-emerald-700 map-filter-btn" id="mf-Low">Low (19)</button>
-                        </div>
+                        <h2 class="text-sm font-black text-slate-900 uppercase">GIS Spatial Risk Map (150 Zones)</h2>
                     </div>
-
-                    <!-- Map Container -->
-                    <div class="flex-1 w-full rounded-xl overflow-hidden border border-slate-200 relative">
-                        <div id="gisMap"></div>
+                    <div class="flex-1 w-full rounded-xl overflow-hidden border border-slate-200">
+                        <div id="fullscreenGisMap"></div>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================================================= -->
-            <!-- TAB 3: 🎯 ZONE ANALYSIS (DECISION-GRADE XAI) -->
+            <!-- VIEW 3: ZONE ANALYSIS (SHAP & EXPLAINABILITY) -->
             <!-- ========================================================================= -->
-            <div id="tab-analysis" class="view-panel hidden flex flex-col gap-5">
-                
-                <!-- Zone Header Selector -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-bold text-slate-500 uppercase">Active Zone Inspection:</span>
-                        <select id="analysisZoneSelect" class="bg-slate-50 border border-slate-200 text-xs font-black text-slate-900 py-1.5 px-3 rounded-lg focus:outline-none focus:border-slate-900" onchange="inspectZone(this.value)">
-                            <!-- Populated via JS -->
-                        </select>
-                    </div>
-                    <button onclick="openDecisionBriefModal()" class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-sm">
-                        <i class="fa-regular fa-file-lines text-xs"></i>
-                        <span>Generate Zone Brief</span>
-                    </button>
-                </div>
-
-                <!-- 1. AI ASSESSMENT CARD (Hero Decision Card) -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col gap-3">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider block">AI ASSESSMENT</span>
-                            <div class="flex items-center gap-3 mt-1">
-                                <h2 class="text-2xl font-black text-slate-900" id="zaZoneId">SGR_ZONE_001</h2>
-                                <span class="text-xs font-black px-3 py-1 rounded-full uppercase" id="zaRiskBadge">MEDIUM RISK — 30.95%</span>
-                            </div>
+            <div id="tab-analysis" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
+                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">Zone Analysis & Explainable AI (SHAP)</h2>
+                    <div class="grid grid-cols-2 gap-5 mb-4">
+                        <div class="border border-slate-200 p-4 rounded-xl">
+                            <h3 class="text-xs font-bold uppercase mb-2">Local Risk Drivers</h3>
+                            <div class="h-64"><canvas id="deepLocalShapChart"></canvas></div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase block">Model Confidence</span>
-                            <span class="text-xs font-black text-emerald-700" id="zaModelConfidence">High (89.1% Class Probability)</span>
-                        </div>
-                    </div>
-
-                    <!-- Plain Language Assessment Narrative -->
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 text-xs text-slate-800 leading-relaxed font-medium" id="zaExecutiveSummary">
-                        This zone is currently assessed as <b>Medium Risk</b>. The primary contributors are elevated surveillance activity, historical vulnerability, and patrol-gap duration. Environmental conditions currently have a comparatively lower contribution.
-                    </div>
-                </div>
-
-                <!-- 2. "WHY THIS ZONE?" RISK DRIVERS & WHAT NEEDS ATTENTION -->
-                <div class="grid grid-cols-12 gap-5">
-                    
-                    <!-- Left (6 Cols): Risk Drivers (Escalators vs Mitigators) -->
-                    <div class="col-span-6 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">RISK DRIVERS (WHY THIS SCORE?)</h3>
-                            <p class="text-[11px] text-slate-500 mb-3">Positive factors escalate risk; negative factors mitigate risk.</p>
-                            <div class="flex flex-col gap-2 text-xs" id="zaDriverList">
-                                <!-- Populated dynamically via JS -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right (6 Cols): "WHAT NEEDS ATTENTION?" Table -->
-                    <div class="col-span-6 bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">WHAT NEEDS ATTENTION?</h3>
-                        <p class="text-[11px] text-slate-500 mb-3">5-second parameter status checklist.</p>
-                        
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-xs text-left">
-                                <thead>
-                                    <tr class="border-b border-slate-100 text-[10px] text-slate-400 font-bold uppercase">
-                                        <th class="pb-1.5">Parameter</th>
-                                        <th class="pb-1.5">Status</th>
-                                        <th class="pb-1.5">Reason</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="zaAttentionTableBody" class="divide-y divide-slate-100 text-[11px] text-slate-700">
-                                    <!-- Populated dynamically via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- 3. EVIDENCE & MULTI-MODAL METRICS -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">SUPPORTING MULTI-MODAL EVIDENCE</h3>
-                    <div class="grid grid-cols-5 gap-3 text-xs" id="zaEvidenceGrid">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- 4. TECHNICAL SHAP DETAIL (Progressive Disclosure) -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-1">TECHNICAL SHAP TREEEXPLAINER DETAIL</h3>
-                    <p class="text-[11px] text-slate-500 mb-3">Mathematical feature attributions supporting the decision engine.</p>
-                    <div class="grid grid-cols-2 gap-5">
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Local Zone Attributions</span>
-                            <div class="h-56"><canvas id="zaLocalShapChart"></canvas></div>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Global 150-Zone Feature Importance</span>
-                            <div class="h-56"><canvas id="zaGlobalShapChart"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ========================================================================= -->
-            <!-- TAB 4: 📷 SURVEILLANCE INTELLIGENCE -->
-            <!-- ========================================================================= -->
-            <div id="tab-surveillance" class="view-panel hidden flex flex-col gap-5">
-                
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase">SURVEILLANCE INTELLIGENCE</h2>
-                            <p class="text-xs text-slate-500">Dataset-derived camera and sensor intelligence consolidated across 1,200 camera trigger events and 1,500 sensor telemetry records.</p>
-                        </div>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold">150 SPATIAL ZONES</span>
-                    </div>
-
-                    <div class="grid grid-cols-12 gap-5">
-                        <!-- Left (6 Cols): Camera Intelligence -->
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA ACTIVITY ANALYSIS</h3>
-                                <div class="grid grid-cols-2 gap-3 text-xs mb-3">
-                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200">
-                                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Human Detections</span>
-                                        <span class="text-lg font-black text-slate-900" id="survHumanCount">3</span>
-                                    </div>
-                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200">
-                                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Vehicle Detections</span>
-                                        <span class="text-lg font-black text-slate-900" id="survVehicleCount">2</span>
-                                    </div>
-                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200">
-                                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Night Movements</span>
-                                        <span class="text-lg font-black text-slate-900" id="survNightCount">4</span>
-                                    </div>
-                                    <div class="bg-white p-2.5 rounded-lg border border-slate-200">
-                                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Camera Activity Score</span>
-                                        <span class="text-lg font-black text-orange-600" id="survActivityScore">0.71</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Clearly Labeled Illustrative Frame -->
-                            <div class="mt-2">
-                                <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Illustrative visualization — generated from camera-event features</div>
-                                <div class="w-full h-36 bg-slate-950 rounded-lg overflow-hidden relative border border-slate-800 flex items-center justify-center">
-                                    <div class="absolute inset-0 cctv-scanline opacity-40"></div>
-                                    <div class="bounding-box" style="top: 30%; left: 35%; width: 25px; height: 45px;"><span class="bounding-label">Person</span></div>
-                                    <div class="bounding-box" style="top: 35%; left: 55%; width: 55px; height: 35px;"><span class="bounding-label">Vehicle</span></div>
-                                    <span class="text-[9px] font-mono text-slate-400 absolute bottom-2 left-2">Camera Target Telemetry Overlay</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right (6 Cols): Sensor Intelligence & Interpretation -->
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xs font-black text-slate-900 uppercase mb-3">SENSOR INTELLIGENCE</h3>
-                                <div class="flex flex-col gap-2.5 text-xs mb-4">
-                                    <div>
-                                        <div class="flex justify-between text-[11px] mb-0.5 font-semibold"><span>Motion</span><span id="siMotionVal">0.68 (Moderate)</span></div>
-                                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div id="siMotionBar" class="bg-amber-500 h-2 rounded-full" style="width: 68%;"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[11px] mb-0.5 font-semibold"><span>Infrared</span><span id="siInfraredVal">0.72 (Elevated)</span></div>
-                                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div id="siInfraredBar" class="bg-red-500 h-2 rounded-full" style="width: 72%;"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[11px] mb-0.5 font-semibold"><span>Acoustic</span><span id="siAcousticVal">0.45 (Moderate)</span></div>
-                                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div id="siAcousticBar" class="bg-blue-500 h-2 rounded-full" style="width: 45%;"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[11px] mb-0.5 font-semibold"><span>Seismic</span><span id="siSeismicVal">0.31 (Low)</span></div>
-                                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div id="siSeismicBar" class="bg-emerald-500 h-2 rounded-full" style="width: 31%;"></div></div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between text-[11px] mb-0.5 font-semibold"><span>Vibration</span><span id="siVibrationVal">0.40 (Low)</span></div>
-                                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden"><div id="siVibrationBar" class="bg-emerald-500 h-2 rounded-full" style="width: 40%;"></div></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Sensor Interpretation Narrative -->
-                            <div class="p-3 bg-white rounded-lg border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
-                                <span class="font-black text-slate-900 block mb-0.5">Sensor Signal Interpretation:</span>
-                                Moderate surveillance activity detected. Infrared activity is the strongest sensor contributor, while seismic and vibration indicators remain low.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ========================================================================= -->
-            <!-- TAB 5: 🧪 SCENARIO LAB ("WHAT-IF" ANALYSIS) -->
-            <!-- ========================================================================= -->
-            <div id="tab-scenario" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase">SCENARIO ANALYSIS (DATASET BASELINE SIMULATION)</h2>
-                            <p class="text-xs text-slate-500">Evaluate hypothetical variations against dataset baseline features.</p>
-                        </div>
-                    </div>
-
-                    <!-- Preset Buttons -->
-                    <div class="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl mb-4 text-xs">
-                        <span class="font-bold text-slate-500 uppercase text-[10px]">Select Scenario Preset:</span>
-                        <button onclick="applyLabPreset('normal')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Standard Baseline</button>
-                        <button onclick="applyLabPreset('night_surge')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Night Infiltration Surge</button>
-                        <button onclick="applyLabPreset('seismic_anomaly')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Seismic Telemetry Spike</button>
-                        <button onclick="applyLabPreset('patrol_deficit')" class="px-3 py-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-md font-semibold transition">Patrol Gap Surge</button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-5">
-                        <!-- Sliders -->
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col gap-3">
-                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                                <span class="text-xs font-bold uppercase text-slate-700">Select Zone for Simulation</span>
-                                <select id="simZonePicker" class="bg-white border border-slate-200 text-xs font-bold text-slate-900 py-1 px-2.5 rounded-lg" onchange="onSimZoneChange(this.value)">
-                                    <!-- Populated via JS -->
-                                </select>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-xs mb-1"><span>Camera Activity Adjustment</span><span class="font-bold text-slate-900" id="labValCam">+0%</span></div>
-                                <input type="range" min="0" max="100" value="20" class="w-full accent-slate-900" id="labSliderCam" oninput="document.getElementById('labValCam').innerText = '+' + this.value + '%'">
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-xs mb-1"><span>Sensor Activity Adjustment</span><span class="font-bold text-slate-900" id="labValSens">+0%</span></div>
-                                <input type="range" min="0" max="100" value="15" class="w-full accent-slate-900" id="labSliderSens" oninput="document.getElementById('labValSens').innerText = '+' + this.value + '%'">
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between text-xs mb-1"><span>Patrol Coverage Deficit</span><span class="font-bold text-slate-900" id="labValPatrol">-10%</span></div>
-                                <input type="range" min="0" max="50" value="10" class="w-full accent-slate-900" id="labSliderPatrol" oninput="document.getElementById('labValPatrol').innerText = '-' + this.value + '%'">
-                            </div>
-
-                            <button onclick="runScenarioLab()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition mt-2">
-                                <i class="fa-solid fa-play mr-1.5"></i> RUN SCENARIO
-                            </button>
-                        </div>
-
-                        <!-- Output Comparison -->
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-xs font-black uppercase text-slate-900 mb-3">SCENARIO COMPARISON</h3>
-                                <div class="grid grid-cols-3 gap-3 mb-4">
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">BASELINE</span>
-                                        <div class="text-lg font-black text-slate-900" id="labBaselineScore">30.95%</div>
-                                    </div>
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">SCENARIO</span>
-                                        <div class="text-lg font-black text-orange-600" id="labScenarioScore">43.21%</div>
-                                    </div>
-                                    <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">CHANGE</span>
-                                        <div class="text-lg font-black text-red-600" id="labChangeScore">+12.26%</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Why Did Risk Increase? -->
-                            <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-medium">
-                                <span class="font-black text-slate-900 block mb-0.5">Why did risk change?</span>
-                                <span id="labReasonText">Increased surveillance activity and reduced patrol coverage contributed to the simulated increase in risk.</span>
-                            </div>
+                        <div class="border border-slate-200 p-4 rounded-xl">
+                            <h3 class="text-xs font-bold uppercase mb-2">Global Feature Importance (RF)</h3>
+                            <div class="h-64"><canvas id="deepGlobalShapChart"></canvas></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================================================= -->
-            <!-- TAB 6: 📊 DATASET INTELLIGENCE & REPORTS -->
+            <!-- VIEW 4: SURVEILLANCE & SENSORS -->
             <!-- ========================================================================= -->
-            <div id="tab-intelligence" class="view-panel hidden flex flex-col gap-5">
-                
-                <!-- Data Sources Inventory -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">DATA SOURCES INVENTORY</h2>
-                    <div class="grid grid-cols-4 gap-3 text-xs">
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Terrain Geography</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">519,841 points</div>
-                            <span class="text-[10px] text-slate-500">Open-Elevation DEM Grid</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Weather & Visibility</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
-                            <span class="text-[10px] text-slate-500">Atmospheric Sensor Logs</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Remote Sensing NDVI</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
-                            <span class="text-[10px] text-slate-500">Multispectral Vegetation</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Patrol Shift Logs</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,800 Weekly Logs</div>
-                            <span class="text-[10px] text-slate-500">Sector Shift Records</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Historical Infiltration</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">5,231 Events</div>
-                            <span class="text-[10px] text-slate-500">Incident Event Logbook</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Optical Camera Triggers</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,200 Events</div>
-                            <span class="text-[10px] text-blue-600 font-semibold">Simulated Surveillance</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Sensor Array Telemetry</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,500 Readings</div>
-                            <span class="text-[10px] text-blue-600 font-semibold">Simulated Telemetry</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Master Fused Matrix</span>
-                            <div class="text-base font-black text-emerald-700 mt-0.5">150 × 48 Matrix</div>
-                            <span class="text-[10px] text-slate-500">Calibrated Risk Target</span>
-                        </div>
-                    </div>
+            <div id="tab-surveillance" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
+                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">Surveillance Intelligence Analysis</h2>
+                    <p class="text-xs text-slate-500 mb-4">Optical/thermal camera detection telemetry derived from 1,200 simulated event logs.</p>
                 </div>
+            </div>
 
-                <!-- Multi-Modal Data Fusion Architecture -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">MULTI-MODAL DATA FUSION ARCHITECTURE</h2>
-                    <div class="p-4 bg-slate-950 text-slate-200 rounded-xl font-mono text-xs overflow-x-auto leading-relaxed">
-Terrain (519k pts) ──┐
-Weather (150 zones) ─┤
-Vegetation (NDVI) ───┤
-Patrol (1.8k logs) ──┼───> Zone-Level Feature Fusion ───> Master Dataset (150 Zones × 48 Cols)
-Historical (5.2k) ───┤                                              │
-Camera (1.2k events) ┤                                              ├───> 5-Fold Stratified CV (LR/RF/XGBoost)
-Sensors (1.5k rdgs) ─┘                                              │
-                                                                    ├───> SHAP TreeExplainer Local/Global Attribution
-                                                                    │
-                                                                    └───> Decision Engine ───> Human-Readable Intelligence
-                    </div>
+            <div id="tab-sensors" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
+                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">Multi-Sensor Telemetry Array</h2>
+                    <p class="text-xs text-slate-500 mb-4">Acoustic, seismic, infrared, and motion sensors processed across 1,500 telemetry records.</p>
                 </div>
+            </div>
 
-                <!-- 5-Fold CV & Ablation Study Progression -->
-                <div class="grid grid-cols-2 gap-5">
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                        <h3 class="text-xs font-black text-slate-900 uppercase mb-2">5-FOLD STRATIFIED CV BENCHMARK</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                <tr><th class="p-2">Model</th><th class="p-2">Accuracy</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700">
-                                <tr><td class="p-2 font-bold text-slate-900">Logistic Regression (Baseline)</td><td class="p-2">0.7400</td><td class="p-2 font-bold text-emerald-600">0.7296</td><td class="p-2 font-bold text-blue-600">0.8755</td></tr>
-                                <tr><td class="p-2 font-bold text-slate-900">Random Forest (TreeExplainer)</td><td class="p-2">0.6200</td><td class="p-2">0.5474</td><td class="p-2">0.7549</td></tr>
-                                <tr><td class="p-2 font-bold text-slate-900">XGBoost (Comparison)</td><td class="p-2">0.6667</td><td class="p-2">0.6176</td><td class="p-2">0.7539</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                        <h3 class="text-xs font-black text-slate-900 uppercase mb-2">FEATURE ABLATION STUDY (+25.76% F1 GAIN)</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase">
-                                <tr><th class="p-2">Experiment Stage</th><th class="p-2">Features</th><th class="p-2">F1-Score</th><th class="p-2">ROC-AUC</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700">
-                                <tr><td class="p-2">Exp 1: Environmental Only</td><td class="p-2">17</td><td class="p-2">0.4720</td><td class="p-2">0.5808</td></tr>
-                                <tr><td class="p-2">Exp 2: Env + Operational Patrol</td><td class="p-2">26</td><td class="p-2">0.4967</td><td class="p-2">0.6076</td></tr>
-                                <tr><td class="p-2">Exp 3: Env + Op + Historical Logs</td><td class="p-2">32</td><td class="p-2">0.5923</td><td class="p-2">0.7097</td></tr>
-                                <tr class="bg-emerald-50/50 font-bold"><td class="p-2 text-emerald-800">Exp 4: Full Multi-Modal System</td><td class="p-2">42</td><td class="p-2 text-emerald-700">0.7296 (+25.8%)</td><td class="p-2 text-blue-700">0.8755</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- ========================================================================= -->
+            <!-- VIEW 5: SCENARIO LAB -->
+            <!-- ========================================================================= -->
+            <div id="tab-scenario" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
+                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">Scenario Lab ("What-If" Analysis)</h2>
+                    <p class="text-xs text-slate-500 mb-4">Simulate operational telemetry variations against dataset-derived baselines.</p>
                 </div>
+            </div>
 
-                <!-- Academic Thesis Documentation Box -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+            <!-- ========================================================================= -->
+            <!-- VIEW 6: DATASET INTELLIGENCE & REPORTS -->
+            <!-- ========================================================================= -->
+            <div id="tab-intelligence" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
+                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">Dataset Intelligence & Multi-Modal Fusion</h2>
+                    <p class="text-xs text-slate-500 mb-4">Master 150-zone data matrix consolidated across 7 domain sources.</p>
+                </div>
+            </div>
+
+            <div id="tab-reports" class="view-panel hidden flex flex-col gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 card-shadow">
                     <div class="flex justify-between items-center mb-3">
-                        <h3 class="text-xs font-black text-slate-900 uppercase">FULL ACADEMIC THESIS REPORT</h3>
-                        <button onclick="copyReportText()" class="px-3.5 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-sm">Copy Thesis Report</button>
+                        <h2 class="text-sm font-black text-slate-900 uppercase">Research & Defense Reports</h2>
+                        <button onclick="copyReportText()" class="px-3.5 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg">Copy Thesis Report</button>
                     </div>
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl h-64 overflow-y-auto custom-scrollbar font-mono text-xs text-slate-800 leading-relaxed whitespace-pre-wrap" id="thesisReportBox">Loading report...</div>
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl h-[520px] overflow-y-auto custom-scrollbar font-mono text-xs text-slate-800 leading-relaxed whitespace-pre-wrap" id="reportContentBox">Loading report...</div>
                 </div>
-
             </div>
 
             <!-- FOOTER -->
             <footer class="mt-3 pt-3 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
-                <div>Dataset-driven research prototype. Surveillance and sensor data are simulated/derived for evaluation. Not intended for real-world operational deployment.</div>
+                <div>Dataset-driven research prototype. Surveillance and sensor data are simulated/derived for evaluation.</div>
                 <div>&copy; 2025 Border Risk Intelligence System</div>
             </footer>
 
@@ -716,11 +730,10 @@ Sensors (1.5k rdgs) ─┘                                              │
         </div>
     </div>
 
-    <!-- APPLICATION SCRIPTS -->
+    <!-- SCRIPT LOGIC -->
     <script>
-        let gisMapInstance = null, zonesData = [], currentZone = null;
-        let mapActiveFilter = 'All';
-        let overviewDonutChartInstance = null, zaLocalShapChartInstance = null, zaGlobalShapChartInstance = null;
+        let sectorMapInstance = null, fullscreenGisMapInstance = null, zonesData = [], currentZone = null;
+        let activeFilter = 'All';
 
         const tileLayers = {
             light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
@@ -730,7 +743,7 @@ Sensors (1.5k rdgs) ─┘                                              │
             updateClock();
             setInterval(updateClock, 30000);
 
-            // Fetch Overview Stats
+            // Fetch Overview
             try {
                 const res = await fetch('/api/overview');
                 const ov = await res.json();
@@ -741,21 +754,21 @@ Sensors (1.5k rdgs) ─┘                                              │
                 document.getElementById('kpiLow').innerText = ov.low_count;
             } catch (e) { console.error(e); }
 
-            // Fetch All Zones
+            // Init Map
+            sectorMapInstance = L.map('sectorMap', { zoomControl: false }).setView([34.0, 75.0], 8);
+            L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(sectorMapInstance);
+
+            // Fetch Zones
             try {
                 const res = await fetch('/api/zones');
                 zonesData = await res.json();
-                populateDropdowns();
-                renderOverviewTopZones();
+                renderMapMarkers();
                 
-                // Select first zone or SGR_ZONE_001
-                if (zonesData.length > 0) {
-                    inspectZone('SGR_ZONE_001');
-                }
+                // Select SGR_ZONE_126 by default
+                const defZone = zonesData.find(z => z.Zone_ID === 'SGR_ZONE_126') || zonesData[0];
+                if (defZone) selectZone(defZone.Zone_ID);
             } catch (e) { console.error(e); }
 
-            renderOverviewDonut();
-            loadGlobalShap();
             loadReportContent();
         }
 
@@ -765,265 +778,11 @@ Sensors (1.5k rdgs) ─┘                                              │
             document.getElementById('headerTime').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
-        function populateDropdowns() {
-            const zaSelect = document.getElementById('analysisZoneSelect');
-            const simSelect = document.getElementById('simZonePicker');
-            zaSelect.innerHTML = '';
-            simSelect.innerHTML = '';
-
-            zonesData.forEach(z => {
-                zaSelect.appendChild(new Option(`${z.Zone_ID} (${z.Risk_Level} — ${z.Risk_Score}%)`, z.Zone_ID));
-                simSelect.appendChild(new Option(`${z.Zone_ID} (${z.Risk_Level} — ${z.Risk_Score}%)`, z.Zone_ID));
-            });
-        }
-
-        function renderOverviewTopZones() {
-            // Sort by risk descending
-            const sorted = [...zonesData].sort((a, b) => b.Risk_Score - a.Risk_Score).slice(0, 5);
-            document.getElementById('overviewTopZonesList').innerHTML = sorted.map(z => {
-                let badgeClass = z.Risk_Level === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200';
-                return `
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/70 flex justify-between items-center hover:bg-slate-100/70 transition">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-black text-slate-900 text-xs">${z.Zone_ID}</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${badgeClass}">${z.Risk_Level.toUpperCase()} — ${z.Risk_Score}%</span>
-                            </div>
-                            <span class="text-[11px] text-slate-500 block mt-0.5">Primary Driver: Extended Patrol Gap & High Slope Terrain</span>
-                        </div>
-                        <button onclick="inspectZone('${z.Zone_ID}'); switchView('tab-analysis');" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition">
-                            Inspect Zone &rarr;
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderOverviewDonut() {
-            const ctx = document.getElementById('overviewDonutChart').getContext('2d');
-            if (overviewDonutChartInstance) overviewDonutChartInstance.destroy();
-            overviewDonutChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Critical (5)', 'High (40)', 'Medium (86)', 'Low (19)'],
-                    datasets: [{
-                        data: [5, 40, 86, 19],
-                        backgroundColor: ['#ef4444', '#f97316', '#eab308', '#10b981'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '72%',
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        async function inspectZone(zoneId) {
-            try {
-                const res = await fetch(`/api/zone/${zoneId}`);
-                currentZone = await res.json();
-                updateZoneAnalysisUI();
-                updateSurveillanceUI();
-            } catch (e) { console.error(e); }
-        }
-
-        function updateZoneAnalysisUI() {
-            if (!currentZone) return;
-            const z = currentZone;
-
-            // Header Select
-            document.getElementById('analysisZoneSelect').value = z.zone_id;
-            document.getElementById('zaZoneId').innerText = z.zone_id;
+        function renderMapMarkers() {
+            const filtered = activeFilter === 'All' ? zonesData : zonesData.filter(z => z.Risk_Level === activeFilter);
             
-            // Risk Badge
-            const badge = document.getElementById('zaRiskBadge');
-            badge.innerText = `${z.risk_level.toUpperCase()} RISK — ${z.risk_score.toFixed(2)}%`;
-            if (z.risk_level === 'Critical') badge.className = 'text-xs font-black px-3 py-1 rounded-full uppercase bg-red-100 text-red-700 border border-red-200';
-            else if (z.risk_level === 'High') badge.className = 'text-xs font-black px-3 py-1 rounded-full uppercase bg-orange-100 text-orange-700 border border-orange-200';
-            else if (z.risk_level === 'Medium') badge.className = 'text-xs font-black px-3 py-1 rounded-full uppercase bg-amber-100 text-amber-700 border border-amber-200';
-            else badge.className = 'text-xs font-black px-3 py-1 rounded-full uppercase bg-emerald-100 text-emerald-700 border border-emerald-200';
-
-            // Executive Summary
-            document.getElementById('zaModelConfidence').innerText = z.ai_assessment.model_confidence;
-            document.getElementById('zaExecutiveSummary').innerHTML = `
-                Why is this zone <b>${z.risk_level} Risk</b>? The model estimates a <b>${z.risk_score.toFixed(2)}% infiltration-risk score</b>. 
-                The strongest contributors are <b>${z.shap_factors.escalating.map(e => e.factor).slice(0, 2).join(' and ') || 'terrain and surveillance factors'}</b>. 
-                Historical records influence baseline zone vulnerability. 
-                <b>Assessment:</b> ${z.ai_assessment.executive_summary}
-            `;
-
-            // Risk Drivers List
-            const driversHtml = [];
-            z.shap_factors.escalating.forEach(e => {
-                driversHtml.push(`
-                    <div class="p-2.5 rounded-lg border border-red-100 bg-red-50/50 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                            <span class="font-black text-slate-900">${e.factor}</span>
-                            <span class="text-[10px] font-mono text-red-600 font-bold">+${parseFloat(e.impact).toFixed(3)}</span>
-                        </div>
-                        <span class="text-[11px] font-bold text-red-700">Increases risk &uarr;</span>
-                    </div>
-                `);
-            });
-            z.shap_factors.mitigating.forEach(m => {
-                driversHtml.push(`
-                    <div class="p-2.5 rounded-lg border border-emerald-100 bg-emerald-50/50 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="font-black text-slate-900">${m.factor}</span>
-                            <span class="text-[10px] font-mono text-emerald-600 font-bold">${parseFloat(m.impact).toFixed(3)}</span>
-                        </div>
-                        <span class="text-[11px] font-bold text-emerald-700">Reduces risk &darr;</span>
-                    </div>
-                `);
-            });
-            document.getElementById('zaDriverList').innerHTML = driversHtml.join('');
-
-            // Attention Table
-            document.getElementById('zaAttentionTableBody').innerHTML = z.attention_parameters.map(ap => {
-                let badgeClass = ap.status === 'Review' ? 'bg-amber-50 text-amber-700 border-amber-200' : (ap.status === 'Elevated' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
-                return `
-                    <tr>
-                        <td class="py-2 font-bold text-slate-800">${ap.parameter}</td>
-                        <td class="py-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${ap.status}</span></td>
-                        <td class="py-2 text-slate-600 leading-snug">${ap.reason}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            // Evidence Grid
-            document.getElementById('zaEvidenceGrid').innerHTML = `
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Terrain</span>
-                    <div class="text-sm font-black text-slate-900 mt-0.5">${z.environmental.avg_elevation}m / ${z.environmental.avg_slope}&deg;</div>
-                    <span class="text-[10px] text-slate-500">Max Slope: ${z.environmental.max_slope}&deg;</span>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Vegetation</span>
-                    <div class="text-sm font-black text-slate-900 mt-0.5">NDVI ${z.environmental.ndvi.toFixed(2)}</div>
-                    <span class="text-[10px] text-slate-500">${z.environmental.land_cover}</span>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Patrol Shift</span>
-                    <div class="text-sm font-black text-slate-900 mt-0.5">${z.operational.coverage_pct}% Cov</div>
-                    <span class="text-[10px] text-slate-500">Max Gap: ${z.operational.max_gap_hours}h</span>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Historical Logs</span>
-                    <div class="text-sm font-black text-slate-900 mt-0.5">${z.historical.event_count} Events</div>
-                    <span class="text-[10px] text-slate-500">${z.historical.night_events} Night Attempts</span>
-                </div>
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block">Surveillance</span>
-                    <div class="text-sm font-black text-slate-900 mt-0.5">${z.camera.human_count} Humans</div>
-                    <span class="text-[10px] text-slate-500">${z.camera.vehicle_count} Vehicles</span>
-                </div>
-            `;
-
-            // Local Waterfall Chart
-            const labels = [];
-            const values = [];
-            const colors = [];
-            z.shap_factors.escalating.forEach(e => {
-                labels.push(e.factor);
-                values.push(parseFloat(e.impact));
-                colors.push('#ef4444');
-            });
-            z.shap_factors.mitigating.forEach(m => {
-                labels.push(m.factor);
-                values.push(parseFloat(m.impact));
-                colors.push('#10b981');
-            });
-
-            const ctx = document.getElementById('zaLocalShapChart').getContext('2d');
-            if (zaLocalShapChartInstance) zaLocalShapChartInstance.destroy();
-            zaLocalShapChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ data: values, backgroundColor: colors, borderRadius: 4 }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 9 } } },
-                        y: { grid: { display: false }, ticks: { color: '#334155', font: { size: 9, weight: '600' } } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        function updateSurveillanceUI() {
-            if (!currentZone) return;
-            const z = currentZone;
-
-            document.getElementById('survHumanCount').innerText = z.camera.human_count;
-            document.getElementById('survVehicleCount').innerText = z.camera.vehicle_count;
-            document.getElementById('survNightCount').innerText = z.camera.night_movements;
-            document.getElementById('survActivityScore').innerText = z.camera.activity_score.toFixed(2);
-
-            setSensBar('siMotion', z.sensors.motion, 'Moderate');
-            setSensBar('siInfrared', z.sensors.infrared, 'Elevated');
-            setSensBar('siAcoustic', z.sensors.acoustic, 'Moderate');
-            setSensBar('siSeismic', z.sensors.seismic, 'Low');
-            setSensBar('siVibration', z.sensors.vibration, 'Low');
-        }
-
-        function setSensBar(prefix, val, status) {
-            document.getElementById(prefix + 'Val').innerText = `${val.toFixed(2)} (${status})`;
-            document.getElementById(prefix + 'Bar').style.width = `${Math.min(100, val * 100)}%`;
-        }
-
-        async function loadGlobalShap() {
-            try {
-                const res = await fetch('/api/shap/global');
-                const list = await res.json();
-                const labels = list.slice(0, 8).map(i => i.Feature.replace('_Score', '').replace('_Risk', ''));
-                const values = list.slice(0, 8).map(i => i.Mean_SHAP_Importance);
-
-                const ctx = document.getElementById('zaGlobalShapChart').getContext('2d');
-                if (zaGlobalShapChartInstance) zaGlobalShapChartInstance.destroy();
-                zaGlobalShapChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{ data: values, backgroundColor: '#0f172a', borderRadius: 4 }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 9 } } },
-                            y: { grid: { display: false }, ticks: { color: '#334155', font: { size: 9, weight: '600' } } }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        function initGisMap() {
-            if (gisMapInstance) return;
-            gisMapInstance = L.map('gisMap', { zoomControl: false }).setView([34.0, 75.0], 8);
-            L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(gisMapInstance);
-            renderGisMapMarkers();
-        }
-
-        function renderGisMapMarkers() {
-            if (!gisMapInstance) return;
-            const filtered = mapActiveFilter === 'All' ? zonesData : zonesData.filter(z => z.Risk_Level === mapActiveFilter);
-
-            gisMapInstance.eachLayer(layer => {
-                if (layer instanceof L.CircleMarker) gisMapInstance.removeLayer(layer);
+            sectorMapInstance.eachLayer(layer => {
+                if (layer instanceof L.CircleMarker) sectorMapInstance.removeLayer(layer);
             });
 
             filtered.forEach(z => {
@@ -1032,123 +791,93 @@ Sensors (1.5k rdgs) ─┘                                              │
                 else if (z.Risk_Level === 'High') color = '#f97316';
                 else if (z.Risk_Level === 'Medium') color = '#eab308';
 
+                const isSelected = currentZone && currentZone.zone_id === z.Zone_ID;
+
                 const marker = L.circleMarker([z.Latitude, z.Longitude], {
-                    radius: z.Risk_Level === 'Critical' ? 9 : 7,
+                    radius: isSelected ? 9 : (z.Risk_Level === 'Critical' ? 7 : 5.5),
                     fillColor: color,
-                    color: '#ffffff',
-                    weight: 1.5,
-                    fillOpacity: 0.85
-                }).addTo(gisMapInstance);
+                    color: isSelected ? '#ef4444' : '#ffffff',
+                    weight: isSelected ? 3 : 1.5,
+                    fillOpacity: 0.9
+                }).addTo(sectorMapInstance);
 
                 const popupHtml = `
-                    <div style="font-family: system-ui; padding: 4px; min-width: 150px;">
-                        <b style="color: #0f172a; font-size: 13px;">${z.Zone_ID}</b><br>
-                        <span style="color: ${color}; font-weight: 800; text-transform: uppercase; font-size: 11px;">${z.Risk_Level} RISK — ${z.Risk_Score}%</span><br>
-                        <div style="font-size: 10px; color: #64748b; margin-top: 4px;">
-                            Primary Driver: <b>Patrol Gap Duration</b><br>
-                            Secondary: <b>Terrain & Camera</b>
+                    <div style="font-family: system-ui; padding: 3px; min-width: 140px;">
+                        <b style="color: #0f172a; font-size: 12px;">${z.Zone_ID}</b><br>
+                        <span style="color: ${color}; font-weight: 800; text-transform: uppercase; font-size: 10px;">${z.Risk_Level.toUpperCase()} — ${z.Risk_Score}%</span><br>
+                        <div style="font-size: 9px; color: #64748b; margin-top: 3px;">
+                            Primary Driver:<br>
+                            <b>Extended Patrol Gap<br>& High Slope Terrain</b>
                         </div>
-                        <button onclick="inspectZone('${z.Zone_ID}'); switchView('tab-analysis');" style="margin-top: 6px; width: 100%; padding: 4px 8px; background: #0f172a; color: #ffffff; border: none; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer;">
+                        <button onclick="selectZone('${z.Zone_ID}');" style="margin-top: 5px; width: 100%; padding: 3px 6px; background: #0f172a; color: #ffffff; border: none; border-radius: 4px; font-weight: bold; font-size: 9px; cursor: pointer;">
                             View Zone Analysis &rarr;
                         </button>
                     </div>
                 `;
 
                 marker.bindPopup(popupHtml);
+                marker.on('click', () => {
+                    selectZone(z.Zone_ID);
+                });
             });
         }
 
-        function setMapFilter(level) {
-            mapActiveFilter = level;
-            document.querySelectorAll('.map-filter-btn').forEach(b => {
-                b.classList.remove('bg-slate-900', 'text-white');
-            });
-            const btn = document.getElementById('mf-' + level);
-            if (btn) btn.classList.add('bg-slate-900', 'text-white');
-            renderGisMapMarkers();
+        function filterOverview(level) {
+            activeFilter = level;
+            renderMapMarkers();
+            const match = zonesData.find(z => level === 'All' || z.Risk_Level === level);
+            if (match) selectZone(match.Zone_ID);
         }
 
-        function openMapWithFilter(level) {
-            setMapFilter(level);
-            switchView('tab-map');
+        async function selectZone(zoneId) {
+            try {
+                const res = await fetch(`/api/zone/${zoneId}`);
+                currentZone = await res.json();
+                updateDashboardUI();
+                renderMapMarkers();
+            } catch (e) { console.error(e); }
         }
 
-        function onMapSearch(query) {
-            const q = query.trim().toUpperCase();
-            if (!q) return;
-            const match = zonesData.find(z => z.Zone_ID.includes(q));
-            if (match && gisMapInstance) {
-                gisMapInstance.panTo([match.Latitude, match.Longitude]);
-            }
-        }
+        function updateDashboardUI() {
+            if (!currentZone) return;
+            const z = currentZone;
 
-        function applyLabPreset(type) {
-            if (type === 'normal') {
-                document.getElementById('labSliderCam').value = 0;
-                document.getElementById('labSliderSens').value = 0;
-                document.getElementById('labSliderPatrol').value = 0;
-            } else if (type === 'night_surge') {
-                document.getElementById('labSliderCam').value = 40;
-                document.getElementById('labSliderSens').value = 25;
-                document.getElementById('labSliderPatrol').value = 10;
-            } else if (type === 'seismic_anomaly') {
-                document.getElementById('labSliderCam').value = 10;
-                document.getElementById('labSliderSens').value = 75;
-                document.getElementById('labSliderPatrol').value = 5;
-            } else if (type === 'patrol_deficit') {
-                document.getElementById('labSliderCam').value = 20;
-                document.getElementById('labSliderSens').value = 15;
-                document.getElementById('labSliderPatrol').value = 40;
-            }
+            document.getElementById('dashZoneId').innerText = z.zone_id;
+            const badge = document.getElementById('dashRiskBadge');
+            badge.innerText = z.risk_level.toUpperCase();
+            if (z.risk_level === 'Critical') badge.className = 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 uppercase';
+            else if (z.risk_level === 'High') badge.className = 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 uppercase';
+            else if (z.risk_level === 'Medium') badge.className = 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 uppercase';
+            else badge.className = 'text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase';
 
-            document.getElementById('labValCam').innerText = '+' + document.getElementById('labSliderCam').value + '%';
-            document.getElementById('labValSens').innerText = '+' + document.getElementById('labSliderSens').value + '%';
-            document.getElementById('labValPatrol').innerText = '-' + document.getElementById('labSliderPatrol').value + '%';
+            // Radial Meter
+            document.getElementById('dashRiskScore').innerText = `${Math.round(z.risk_score)}%`;
+            const pct = Math.min(100, Math.max(0, z.risk_score));
+            let meterColor = '#10b981';
+            if (z.risk_level === 'Critical') meterColor = '#ef4444';
+            else if (z.risk_level === 'High') meterColor = '#f97316';
+            else if (z.risk_level === 'Medium') meterColor = '#eab308';
+            document.getElementById('dashRadialMeter').style.background = `conic-gradient(${meterColor} 0% ${pct}%, #f1f5f9 ${pct}% 100%)`;
 
-            runScenarioLab();
-        }
-
-        function onSimZoneChange(zoneId) {
-            const z = zonesData.find(item => item.Zone_ID === zoneId);
-            if (z) {
-                document.getElementById('labBaselineScore').innerText = `${z.Risk_Score}%`;
-                runScenarioLab();
-            }
-        }
-
-        function runScenarioLab() {
-            const camAdj = parseInt(document.getElementById('labSliderCam').value);
-            const sensAdj = parseInt(document.getElementById('labSliderSens').value);
-            const patrolDef = parseInt(document.getElementById('labSliderPatrol').value);
-
-            const baselineText = document.getElementById('labBaselineScore').innerText;
-            const baseline = parseFloat(baselineText) || 30.95;
-
-            const delta = (camAdj * 0.15) + (sensAdj * 0.12) + (patrolDef * 0.18);
-            const simulated = Math.min(99.0, Math.max(5.0, baseline + delta));
-            const change = simulated - baseline;
-
-            document.getElementById('labScenarioScore').innerText = `${simulated.toFixed(2)}%`;
-            document.getElementById('labChangeScore').innerText = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-            document.getElementById('labChangeScore').className = `text-lg font-black ${change >= 0 ? 'text-red-600' : 'text-emerald-600'}`;
-
-            document.getElementById('labReasonText').innerText = change > 0 
-                ? "Increased surveillance activity and extended patrol-gap duration contributed to the simulated increase in predicted risk."
-                : "Standard baseline conditions maintained with minimal simulated operational risk delta.";
+            // Surveillance & Sensors
+            document.getElementById('survHumanCount').innerText = z.camera.human_count;
+            document.getElementById('survVehicleCount').innerText = z.camera.vehicle_count;
+            document.getElementById('survNightCount').innerText = z.camera.night_movements;
+            document.getElementById('survActivityScore').innerText = z.camera.activity_score.toFixed(2);
         }
 
         async function loadReportContent() {
             try {
                 const res = await fetch('/api/report');
                 const data = await res.json();
-                document.getElementById('thesisReportBox').innerText = data.content;
+                document.getElementById('reportContentBox').innerText = data.content;
             } catch (e) { console.error(e); }
         }
 
         function copyReportText() {
-            const text = document.getElementById('thesisReportBox').innerText;
+            const text = document.getElementById('reportContentBox').innerText;
             navigator.clipboard.writeText(text).then(() => {
-                alert("Full Thesis Report copied to clipboard!");
+                alert("Thesis Report copied to clipboard!");
             });
         }
 
@@ -1171,17 +900,22 @@ Sensors (1.5k rdgs) ─┘                                              │
 
         function switchView(tabId) {
             document.querySelectorAll('.view-panel').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-pill-active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-btn-active'));
 
             const targetPage = document.getElementById(tabId);
             if (targetPage) targetPage.classList.remove('hidden');
 
             const targetNav = document.getElementById('nav-' + tabId);
-            if (targetNav) targetNav.classList.add('nav-pill-active');
+            if (targetNav) targetNav.classList.add('nav-btn-active');
 
-            if (tabId === 'tab-map') {
-                initGisMap();
-                setTimeout(() => gisMapInstance.invalidateSize(), 150);
+            if (tabId === 'tab-overview') {
+                setTimeout(() => sectorMapInstance.invalidateSize(), 150);
+            } else if (tabId === 'tab-map') {
+                if (!fullscreenGisMapInstance) {
+                    fullscreenGisMapInstance = L.map('fullscreenGisMap', { zoomControl: false }).setView([34.0, 75.0], 8);
+                    L.tileLayer(tileLayers.light, { maxZoom: 18 }).addTo(fullscreenGisMapInstance);
+                }
+                setTimeout(() => fullscreenGisMapInstance.invalidateSize(), 150);
             }
         }
 
