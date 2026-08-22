@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -34,7 +35,7 @@
     <!-- FontAwesome 6 CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        body { background-color: #f8fafc; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: #f8fafc; color: #0f172a; font-family: 'Inter', system-ui, -apple-system, sans-serif; transition: background-color 0.2s ease, color 0.2s ease; }
         .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -47,12 +48,48 @@
         .cctv-scanline { background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%); background-size: 100% 4px; }
         .bounding-box { position: absolute; border: 2px solid #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); pointer-events: none; }
         .bounding-label { position: absolute; top: -18px; left: -2px; background: rgba(34, 197, 94, 0.9); color: #ffffff; font-size: 9px; font-weight: 800; padding: 1px 4px; border-radius: 2px; text-transform: uppercase; }
+
+        /* ------------------------------------------------------------- */
+        /* TACTICAL DARK THEME STYLES                                    */
+        /* ------------------------------------------------------------- */
+        html.dark { color-scheme: dark; }
+        html.dark body { background-color: #070b14 !important; color: #f1f5f9 !important; }
+        html.dark header { background-color: #0f172a !important; border-color: #1e293b !important; }
+        html.dark aside#mainSidebar { background-color: #0f172a !important; border-color: #1e293b !important; }
+        html.dark main { background-color: #070b14 !important; }
+        html.dark .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
+        html.dark .bg-slate-50 { background-color: #151e32 !important; border-color: #1e293b !important; }
+        html.dark .bg-slate-100 { background-color: #1e293b !important; color: #cbd5e1 !important; }
+        html.dark .text-slate-900 { color: #f8fafc !important; }
+        html.dark .text-slate-800 { color: #f1f5f9 !important; }
+        html.dark .text-slate-700 { color: #e2e8f0 !important; }
+        html.dark .text-slate-600 { color: #cbd5e1 !important; }
+        html.dark .text-slate-500 { color: #94a3b8 !important; }
+        html.dark .text-slate-400 { color: #64748b !important; }
+        html.dark .border-slate-200,
+        html.dark .border-slate-200\/90,
+        html.dark .border-slate-200\/80,
+        html.dark .border-slate-200\/70,
+        html.dark .border-slate-100 { border-color: #1e293b !important; }
+        html.dark .divide-slate-100 > * + *,
+        html.dark .divide-slate-200 > * + * { border-color: #1e293b !important; }
+        html.dark .card-shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4); }
+        html.dark .nav-btn:hover { background-color: #1e293b !important; color: #f8fafc !important; }
+        html.dark .nav-btn-active { background-color: #1e3a8a !important; color: #93c5fd !important; }
+        html.dark .radial-meter-inner { background: #0f172a !important; color: #f8fafc !important; }
+        html.dark select, html.dark input[type="text"] { background-color: #151e32 !important; color: #f8fafc !important; border-color: #334155 !important; }
+        html.dark .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a !important; }
+        html.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155 !important; }
+        html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569 !important; }
+        html.dark footer { border-color: #1e293b !important; color: #64748b !important; }
+        html.dark #briefModal .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
+        html.dark .leaflet-popup-content-wrapper, html.dark .leaflet-popup-tip { background: #0f172a !important; color: #f8fafc !important; border: 1px solid #1e293b; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden bg-slate-50 text-slate-900">
 
     <!-- TOP HEADER -->
-    <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center z-30 flex-shrink-0">
+    <header class="bg-white border-b border-slate-200/90 px-4 sm:px-6 py-2.5 sm:py-3 flex justify-between items-center z-30 flex-shrink-0 transition-colors duration-200">
         <div class="flex items-center gap-3">
             <button onclick="toggleMobileSidebar()" class="md:hidden w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-200 transition" title="Toggle Navigation">
                 <i class="fa-solid fa-bars text-sm"></i>
@@ -66,7 +103,7 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-3 sm:gap-6 text-xs text-slate-600">
+        <div class="flex items-center gap-2.5 sm:gap-5 text-xs text-slate-600">
             <!-- Location -->
             <div class="hidden sm:flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-slate-400 text-sm"></i>
@@ -77,13 +114,19 @@
             </div>
 
             <!-- Clock & Date -->
-            <div class="flex items-center gap-2">
+            <div class="hidden xs:flex items-center gap-2">
                 <i class="fa-regular fa-clock text-slate-400 text-sm"></i>
                 <div class="leading-tight">
                     <div class="font-bold text-slate-800" id="headerTime">11:37 AM</div>
-                    <div class="text-[10px] text-slate-400 hidden xs:block" id="headerDate">Aug 22, 2026</div>
+                    <div class="text-[10px] text-slate-400" id="headerDate">Aug 22, 2026</div>
                 </div>
             </div>
+
+            <!-- Dark / Light Theme Toggle Button -->
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 transition flex items-center gap-1.5 text-xs font-bold text-slate-700 shadow-sm cursor-pointer" title="Toggle Dark / Light Theme">
+                <i class="fa-solid fa-moon text-indigo-500 text-xs" id="themeToggleIcon"></i>
+                <span id="themeToggleText" class="hidden sm:inline">Dark</span>
+            </button>
 
             <!-- Avatar -->
             <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0">
@@ -249,14 +292,17 @@
 
                             <!-- Top-Right Base Layer Toggle -->
                             <div class="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-sm p-1 rounded-xl border border-slate-200 shadow-sm flex items-center gap-1 text-[10px] font-bold">
-                                <button onclick="setMapBaseLayer('satellite', 'overview')" id="btn-base-sat-ov" class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
-                                    <i class="fa-solid fa-satellite text-[10px]"></i> Satellite
+                                <button onclick="setMapBaseLayer('satellite', 'overview')" id="btn-base-sat-ov" class="px-2 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-satellite text-[10px]"></i> Sat
                                 </button>
-                                <button onclick="setMapBaseLayer('terrain', 'overview')" id="btn-base-ter-ov" class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
-                                    <i class="fa-solid fa-mountain text-[10px]"></i> Terrain
+                                <button onclick="setMapBaseLayer('terrain', 'overview')" id="btn-base-ter-ov" class="px-2 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-mountain text-[10px]"></i> Ter
                                 </button>
-                                <button onclick="setMapBaseLayer('light', 'overview')" id="btn-base-lig-ov" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1">
-                                    <i class="fa-solid fa-map text-[10px]"></i> Light
+                                <button onclick="setMapBaseLayer('dark', 'overview')" id="btn-base-dar-ov" class="px-2 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1">
+                                    <i class="fa-solid fa-moon text-[10px]"></i> Dark
+                                </button>
+                                <button onclick="setMapBaseLayer('light', 'overview')" id="btn-base-lig-ov" class="px-2 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1">
+                                    <i class="fa-solid fa-sun text-[10px]"></i> Light
                                 </button>
                             </div>
 
@@ -533,8 +579,11 @@
                                 <button onclick="setMapBaseLayer('terrain', 'gis')" id="btn-base-ter-gis" class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-white transition flex items-center gap-1">
                                     <i class="fa-solid fa-mountain text-[10px]"></i> Terrain
                                 </button>
+                                <button onclick="setMapBaseLayer('dark', 'gis')" id="btn-base-dar-gis" class="px-2.5 py-1 rounded-lg text-slate-700 hover:bg-white transition flex items-center gap-1">
+                                    <i class="fa-solid fa-moon text-[10px]"></i> Dark
+                                </button>
                                 <button onclick="setMapBaseLayer('light', 'gis')" id="btn-base-lig-gis" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1">
-                                    <i class="fa-solid fa-map text-[10px]"></i> Light
+                                    <i class="fa-solid fa-sun text-[10px]"></i> Light
                                 </button>
                             </div>
                         </div>
@@ -1697,10 +1746,43 @@ Sensors (1.5k Readings) ─┘                                          │
 
         const tileLayers = {
             light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
             satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
             terrain: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
         };
         let sectorMapBaseLayer = null, gisMapBaseLayer = null;
+
+        function setTheme(theme) {
+            const isDark = theme === 'dark';
+            const htmlEl = document.documentElement;
+            const icon = document.getElementById('themeToggleIcon');
+            const text = document.getElementById('themeToggleText');
+            const btn = document.getElementById('themeToggleBtn');
+
+            if (isDark) {
+                htmlEl.classList.add('dark');
+                if (icon) icon.className = 'fa-solid fa-sun text-amber-400 text-xs';
+                if (text) text.innerText = 'Light';
+                if (btn) btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 transition flex items-center gap-1.5 text-xs font-bold text-slate-200 shadow-sm cursor-pointer';
+            } else {
+                htmlEl.classList.remove('dark');
+                if (icon) icon.className = 'fa-solid fa-moon text-indigo-500 text-xs';
+                if (text) text.innerText = 'Dark';
+                if (btn) btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 transition flex items-center gap-1.5 text-xs font-bold text-slate-700 shadow-sm cursor-pointer';
+            }
+            localStorage.setItem('theme', theme);
+
+            // Re-render synthetic surveillance canvas
+            if (currentZone) {
+                renderSyntheticSurveillanceFrame('survSyntheticCanvasMini', currentZone);
+                renderSyntheticSurveillanceFrame('survSyntheticCanvasFull', currentZone);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(isDark ? 'light' : 'dark');
+        }
 
         // Official Srinagar Sector Study Boundary Polygon
         const srinagarSectorPolygon = [
@@ -1744,11 +1826,11 @@ Sensors (1.5k Readings) ─┘                                          │
                 }).addTo(sectorMapInstance);
                 sectorMapBaseLayer.bringToBack();
                 
-                ['satellite', 'terrain', 'light'].forEach(t => {
+                ['satellite', 'terrain', 'dark', 'light'].forEach(t => {
                     const btn = document.getElementById('btn-base-' + t.slice(0,3) + '-ov');
                     if (btn) {
-                        if (t === layerType) btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1';
-                        else btn.className = 'px-2.5 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1';
+                        if (t === layerType) btn.className = 'px-2 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1 font-bold';
+                        else btn.className = 'px-2 py-1 rounded-lg text-slate-700 hover:bg-slate-100 transition flex items-center gap-1';
                     }
                 });
             } else {
@@ -1760,10 +1842,10 @@ Sensors (1.5k Readings) ─┘                                          │
                 }).addTo(fullscreenGisMapInstance);
                 gisMapBaseLayer.bringToBack();
                 
-                ['satellite', 'terrain', 'light'].forEach(t => {
+                ['satellite', 'terrain', 'dark', 'light'].forEach(t => {
                     const btn = document.getElementById('btn-base-' + t.slice(0,3) + '-gis');
                     if (btn) {
-                        if (t === layerType) btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1';
+                        if (t === layerType) btn.className = 'px-2.5 py-1 rounded-lg bg-slate-900 text-white transition flex items-center gap-1 font-bold';
                         else btn.className = 'px-2.5 py-1 rounded-lg text-slate-700 hover:bg-white transition flex items-center gap-1';
                     }
                 });
@@ -1771,6 +1853,10 @@ Sensors (1.5k Readings) ─┘                                          │
         }
 
         async function initApp() {
+            // Apply saved theme preference (default: light)
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+
             updateClock();
             setInterval(updateClock, 30000);
 
@@ -1787,7 +1873,9 @@ Sensors (1.5k Readings) ─┘                                          │
 
             // Init Main Sector Map (Centered strictly on Srinagar Sector)
             sectorMapInstance = L.map('sectorMap', { zoomControl: false }).setView([34.09, 74.81], 11);
-            sectorMapBaseLayer = L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(sectorMapInstance);
+            const initialLayer = savedTheme === 'dark' ? 'dark' : 'light';
+            sectorMapBaseLayer = L.tileLayer(tileLayers[initialLayer], { maxZoom: 18, attribution: '© CARTO' }).addTo(sectorMapInstance);
+            setMapBaseLayer(initialLayer, 'overview');
 
             // Add Kashmir sector boundary polygon with pale green terrain tint
             L.polygon(srinagarSectorPolygon, {
