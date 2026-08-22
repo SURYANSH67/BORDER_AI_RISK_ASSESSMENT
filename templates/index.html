@@ -223,8 +223,14 @@
 
                     <!-- SECTOR RISK MAP (7 COLS) -->
                     <div class="col-span-7 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between relative">
-                        <div class="flex justify-between items-center mb-2.5">
-                            <span class="text-xs font-black text-slate-900 uppercase tracking-wider">SECTOR RISK MAP</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <span class="text-xs font-black text-slate-900 uppercase tracking-tight">SECTOR RISK MAP</span>
+                                <span class="text-[10px] text-slate-500 font-medium ml-2">Srinagar Sector — Spatial Risk Analysis • 150 Dataset-Derived Analysis Zones</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Contiguous Spatial Mesh
+                            </div>
                         </div>
 
                         <!-- Map Viewport -->
@@ -1737,17 +1743,56 @@ Sensors (1.5k Readings) ─┘                                          │
                 document.getElementById('kpiLow').innerText = ov.low_count;
             } catch (e) { console.error(e); }
 
+        // Natural boundary polygon for Srinagar Sector study area
+        const srinagarSectorPolygon = [
+            [35.15, 74.60], [35.20, 75.10], [35.10, 75.50], [34.85, 76.10],
+            [34.50, 76.25], [34.00, 76.15], [33.50, 75.95], [33.00, 75.65],
+            [32.80, 75.20], [32.80, 74.60], [33.00, 74.00], [33.40, 73.70],
+            [33.90, 73.65], [34.40, 73.75], [34.80, 74.10], [35.15, 74.60]
+        ];
+
+        // Hexagon coordinates generator for contiguous spatial mesh
+        function getHexagonCoordinates(centerLat, centerLon, radiusKm = 9.2) {
+            const coords = [];
+            const latOffset = (radiusKm / 110.574);
+            const lonOffset = (radiusKm / (111.320 * Math.cos(centerLat * Math.PI / 180)));
+            for (let i = 0; i < 6; i++) {
+                const angleDeg = 60 * i - 30;
+                const angleRad = Math.PI / 180 * angleDeg;
+                coords.push([
+                    centerLat + latOffset * Math.sin(angleRad),
+                    centerLon + lonOffset * Math.cos(angleRad)
+                ]);
+            }
+            return coords;
+        }
+
+        async function initApp() {
+            updateClock();
+            setInterval(updateClock, 30000);
+
+            // Overview stats
+            try {
+                const res = await fetch('/api/overview');
+                const ov = await res.json();
+                document.getElementById('kpiTotal').innerText = ov.total_zones;
+                document.getElementById('kpiCritical').innerText = ov.critical_count;
+                document.getElementById('kpiHigh').innerText = ov.high_count;
+                document.getElementById('kpiMedium').innerText = ov.medium_count;
+                document.getElementById('kpiLow').innerText = ov.low_count;
+            } catch (e) { console.error(e); }
+
             // Init Main Sector Map
             sectorMapInstance = L.map('sectorMap', { zoomControl: false }).setView([34.0, 75.0], 8);
             L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(sectorMapInstance);
 
-            // Add Kashmir sector boundary polygon
+            // Add Kashmir sector boundary polygon with pale green terrain tint
             L.polygon(srinagarSectorPolygon, {
-                color: '#2563eb',
-                weight: 1.5,
+                color: '#64748b',
+                weight: 1.8,
                 dashArray: '4, 4',
-                fillColor: '#eff6ff',
-                fillOpacity: 0.15
+                fillColor: '#f0fdf4',
+                fillOpacity: 0.35
             }).addTo(sectorMapInstance);
 
             // Fetch Zones
@@ -1787,9 +1832,21 @@ Sensors (1.5k Readings) ─┘                                          │
         function renderSectorMapMarkers() {
             const filtered = activeOverviewFilter === 'All' ? zonesData : zonesData.filter(z => z.Risk_Level === activeOverviewFilter);
             
+            // Clear existing markers and polygons
             sectorMapInstance.eachLayer(layer => {
-                if (layer instanceof L.CircleMarker) sectorMapInstance.removeLayer(layer);
+                if (layer instanceof L.CircleMarker || (layer instanceof L.Polygon && layer !== sectorMapInstance._sectorBoundary)) {
+                    sectorMapInstance.removeLayer(layer);
+                }
             });
+
+            // Re-add sector boundary polygon
+            sectorMapInstance._sectorBoundary = L.polygon(srinagarSectorPolygon, {
+                color: '#64748b',
+                weight: 1.8,
+                dashArray: '4, 4',
+                fillColor: '#f0fdf4',
+                fillOpacity: 0.35
+            }).addTo(sectorMapInstance);
 
             filtered.forEach(z => {
                 let color = '#10b981';
@@ -1799,13 +1856,43 @@ Sensors (1.5k Readings) ─┘                                          │
 
                 const isSelected = currentZone && currentZone.zone_id === z.Zone_ID;
 
-                const marker = L.circleMarker([z.Latitude, z.Longitude], {
-                    radius: isSelected ? 9 : (z.Risk_Level === 'Critical' ? 7 : 5.5),
+                // 1. Contiguous Hexagonal Spatial Cell
+                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 9.5);
+                const hexCell = L.polygon(hexCoords, {
                     fillColor: color,
-                    color: isSelected ? '#ef4444' : '#ffffff',
-                    weight: isSelected ? 3 : 1.5,
-                    fillOpacity: 0.9
+                    fillOpacity: isSelected ? 0.40 : 0.22,
+                    color: isSelected ? '#ef4444' : '#cbd5e1',
+                    weight: isSelected ? 1.5 : 0.75
                 }).addTo(sectorMapInstance);
+
+                // 2. Zone Node Center Marker
+                const marker = L.circleMarker([z.Latitude, z.Longitude], {
+                    radius: isSelected ? 6.5 : (z.Risk_Level === 'Critical' ? 6 : 5),
+                    fillColor: color,
+                    color: '#ffffff',
+                    weight: 1.5,
+                    fillOpacity: 0.95
+                }).addTo(sectorMapInstance);
+
+                // 3. Active Target Bullseye Rings (Matching reference image)
+                if (isSelected) {
+                    // Outer Ring
+                    L.circleMarker([z.Latitude, z.Longitude], {
+                        radius: 14,
+                        fill: false,
+                        color: '#ef4444',
+                        weight: 2.5,
+                        opacity: 0.9
+                    }).addTo(sectorMapInstance);
+                    // Inner Ring
+                    L.circleMarker([z.Latitude, z.Longitude], {
+                        radius: 8,
+                        fill: false,
+                        color: '#ef4444',
+                        weight: 2,
+                        opacity: 0.9
+                    }).addTo(sectorMapInstance);
+                }
 
                 const popupHtml = `
                     <div style="font-family: system-ui; padding: 4px; min-width: 145px;">
@@ -1822,9 +1909,10 @@ Sensors (1.5k Readings) ─┘                                          │
                 `;
 
                 marker.bindPopup(popupHtml);
-                marker.on('click', () => {
-                    inspectZone(z.Zone_ID);
-                });
+                hexCell.bindPopup(popupHtml);
+
+                marker.on('click', () => inspectZone(z.Zone_ID));
+                hexCell.on('click', () => inspectZone(z.Zone_ID));
             });
         }
 
@@ -2108,8 +2196,19 @@ Sensors (1.5k Readings) ─┘                                          │
             const filtered = gisFilter === 'All' ? zonesData : zonesData.filter(z => z.Risk_Level === gisFilter);
 
             fullscreenGisMapInstance.eachLayer(layer => {
-                if (layer instanceof L.CircleMarker) fullscreenGisMapInstance.removeLayer(layer);
+                if (layer instanceof L.CircleMarker || (layer instanceof L.Polygon && layer !== fullscreenGisMapInstance._sectorBoundary)) {
+                    fullscreenGisMapInstance.removeLayer(layer);
+                }
             });
+
+            // Sector polygon on Fullscreen Map
+            fullscreenGisMapInstance._sectorBoundary = L.polygon(srinagarSectorPolygon, {
+                color: '#64748b',
+                weight: 2,
+                dashArray: '4, 4',
+                fillColor: '#f0fdf4',
+                fillOpacity: 0.35
+            }).addTo(fullscreenGisMapInstance);
 
             filtered.forEach(z => {
                 let color = '#10b981';
@@ -2117,13 +2216,43 @@ Sensors (1.5k Readings) ─┘                                          │
                 else if (z.Risk_Level === 'High') color = '#f97316';
                 else if (z.Risk_Level === 'Medium') color = '#eab308';
 
+                const isSelected = currentZone && currentZone.zone_id === z.Zone_ID;
+
+                // 1. Contiguous Hexagonal Spatial Cell
+                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 9.5);
+                const hexCell = L.polygon(hexCoords, {
+                    fillColor: color,
+                    fillOpacity: isSelected ? 0.40 : 0.22,
+                    color: isSelected ? '#ef4444' : '#cbd5e1',
+                    weight: isSelected ? 1.5 : 0.75
+                }).addTo(fullscreenGisMapInstance);
+
+                // 2. Zone Node Center Marker
                 const marker = L.circleMarker([z.Latitude, z.Longitude], {
-                    radius: z.Risk_Level === 'Critical' ? 9 : 7,
+                    radius: isSelected ? 6.5 : (z.Risk_Level === 'Critical' ? 6 : 5),
                     fillColor: color,
                     color: '#ffffff',
                     weight: 1.5,
-                    fillOpacity: 0.9
+                    fillOpacity: 0.95
                 }).addTo(fullscreenGisMapInstance);
+
+                // 3. Active Target Bullseye Rings
+                if (isSelected) {
+                    L.circleMarker([z.Latitude, z.Longitude], {
+                        radius: 14,
+                        fill: false,
+                        color: '#ef4444',
+                        weight: 2.5,
+                        opacity: 0.9
+                    }).addTo(fullscreenGisMapInstance);
+                    L.circleMarker([z.Latitude, z.Longitude], {
+                        radius: 8,
+                        fill: false,
+                        color: '#ef4444',
+                        weight: 2,
+                        opacity: 0.9
+                    }).addTo(fullscreenGisMapInstance);
+                }
 
                 const popupHtml = `
                     <div style="font-family: system-ui; padding: 4px; min-width: 150px;">
@@ -2140,6 +2269,10 @@ Sensors (1.5k Readings) ─┘                                          │
                 `;
 
                 marker.bindPopup(popupHtml);
+                hexCell.bindPopup(popupHtml);
+
+                marker.on('click', () => inspectZone(z.Zone_ID));
+                hexCell.on('click', () => inspectZone(z.Zone_ID));
             });
         }
 
