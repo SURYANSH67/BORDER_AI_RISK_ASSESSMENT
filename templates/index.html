@@ -241,7 +241,7 @@
                             <div class="absolute top-3 left-3 z-10 flex flex-col gap-1 shadow-sm">
                                 <button onclick="sectorMapInstance.zoomIn()" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm">+</button>
                                 <button onclick="sectorMapInstance.zoomOut()" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm">-</button>
-                                <button onclick="sectorMapInstance.setView([34.0, 75.0], 8)" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm" title="Recenter"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
+                                <button onclick="sectorMapInstance.setView([34.09, 74.81], 11)" class="w-7 h-7 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 text-xs font-bold flex items-center justify-center shadow-sm" title="Recenter"><i class="fa-solid fa-layer-group text-[10px]"></i></button>
                             </div>
 
                             <!-- Top-Right Base Layer Toggle -->
@@ -1807,16 +1807,24 @@ Sensors (1.5k Readings) ─┘                                          │
         };
         let sectorMapBaseLayer = null, gisMapBaseLayer = null;
 
-        // Natural boundary polygon for Srinagar Sector study area
+        // Official Srinagar Sector Study Boundary Polygon
         const srinagarSectorPolygon = [
-            [35.15, 74.60], [35.20, 75.10], [35.10, 75.50], [34.85, 76.10],
-            [34.50, 76.25], [34.00, 76.15], [33.50, 75.95], [33.00, 75.65],
-            [32.80, 75.20], [32.80, 74.60], [33.00, 74.00], [33.40, 73.70],
-            [33.90, 73.65], [34.40, 73.75], [34.80, 74.10], [35.15, 74.60]
+            [34.250, 74.780],
+            [34.240, 74.920],
+            [34.180, 75.030],
+            [34.100, 75.060],
+            [34.010, 75.020],
+            [33.940, 74.910],
+            [33.930, 74.760],
+            [33.970, 74.640],
+            [34.060, 74.600],
+            [34.160, 74.630],
+            [34.230, 74.700],
+            [34.250, 74.780]
         ];
 
         // Hexagon coordinates generator for contiguous spatial mesh
-        function getHexagonCoordinates(centerLat, centerLon, radiusKm = 9.2) {
+        function getHexagonCoordinates(centerLat, centerLon, radiusKm = 1.35) {
             const coords = [];
             const latOffset = (radiusKm / 110.574);
             const lonOffset = (radiusKm / (111.320 * Math.cos(centerLat * Math.PI / 180)));
@@ -1882,8 +1890,8 @@ Sensors (1.5k Readings) ─┘                                          │
                 document.getElementById('kpiLow').innerText = ov.low_count;
             } catch (e) { console.error(e); }
 
-            // Init Main Sector Map
-            sectorMapInstance = L.map('sectorMap', { zoomControl: false }).setView([34.0, 75.0], 8);
+            // Init Main Sector Map (Centered strictly on Srinagar Sector)
+            sectorMapInstance = L.map('sectorMap', { zoomControl: false }).setView([34.09, 74.81], 11);
             sectorMapBaseLayer = L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(sectorMapInstance);
 
             // Add Kashmir sector boundary polygon with pale green terrain tint
@@ -1957,7 +1965,7 @@ Sensors (1.5k Readings) ─┘                                          │
                 const isSelected = currentZone && currentZone.zone_id === z.Zone_ID;
 
                 // 1. Contiguous Hexagonal Spatial Cell
-                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 9.5);
+                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 1.35);
                 const hexCell = L.polygon(hexCoords, {
                     fillColor: color,
                     fillOpacity: isSelected ? 0.40 : 0.22,
@@ -2276,7 +2284,7 @@ Sensors (1.5k Readings) ─┘                                          │
 
         function initFullscreenGisMap() {
             if (fullscreenGisMapInstance) return;
-            fullscreenGisMapInstance = L.map('fullscreenGisMap', { zoomControl: false }).setView([34.0, 75.0], 8);
+            fullscreenGisMapInstance = L.map('fullscreenGisMap', { zoomControl: false }).setView([34.09, 74.81], 11);
             gisMapBaseLayer = L.tileLayer(tileLayers.light, { maxZoom: 18, attribution: '© CARTO' }).addTo(fullscreenGisMapInstance);
 
             // Sector polygon on Fullscreen Map
@@ -2319,7 +2327,7 @@ Sensors (1.5k Readings) ─┘                                          │
                 const isSelected = currentZone && currentZone.zone_id === z.Zone_ID;
 
                 // 1. Contiguous Hexagonal Spatial Cell
-                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 9.5);
+                const hexCoords = getHexagonCoordinates(z.Latitude, z.Longitude, 1.35);
                 const hexCell = L.polygon(hexCoords, {
                     fillColor: color,
                     fillOpacity: isSelected ? 0.40 : 0.22,
