@@ -112,6 +112,14 @@ def get_datasets_summary():
         "sensors": {"name": "Simulated Acoustic/Seismic Sensors", "points": "1,500 Telemetry Records", "zones": 150, "type": "Synthetic Intelligence"}
     })
 
+@app.route("/api/report")
+def get_report_content():
+    report_path = os.path.join(os.path.abspath("reports"), "FINAL_THESIS_REPORT.md")
+    if os.path.exists(report_path):
+        with open(report_path, "r", encoding="utf-8") as f:
+            return jsonify({"content": f.read()})
+    return jsonify({"content": "# Thesis Report\nReport file not found."})
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
     print("=" * 75)
