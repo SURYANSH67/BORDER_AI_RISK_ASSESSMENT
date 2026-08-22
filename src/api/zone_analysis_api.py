@@ -435,6 +435,23 @@ Priority: {patrol_assessment['zone_priority_label']}
 
     return payload
 
+def get_overview_stats(master_path="data/processed/master_risk_dataset.csv"):
+    """
+    Returns aggregate overview statistics across all 150 zones.
+    """
+    if not os.path.exists(master_path):
+        raise FileNotFoundError(f"Master dataset not found at {master_path}.")
+    df = pd.read_csv(master_path)
+    counts = df["Risk_Level"].value_counts().to_dict()
+    return {
+        "total_zones": int(len(df)),
+        "critical_count": int(counts.get("Critical", 0)),
+        "high_count": int(counts.get("High", 0)),
+        "medium_count": int(counts.get("Medium", 0)),
+        "low_count": int(counts.get("Low", 0)),
+        "avg_risk_score": float(round(df["Risk_Score"].mean(), 2))
+    }
+
 if __name__ == "__main__":
     res = get_zone_analysis("SGR_ZONE_126")
     print(res["decision_brief"])
