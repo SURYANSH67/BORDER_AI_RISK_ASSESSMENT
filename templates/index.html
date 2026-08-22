@@ -394,47 +394,42 @@
                 <!-- 4. BOTTOM ROW: SURVEILLANCE OVERVIEW | SENSOR ACTIVITY OVERVIEW | RECENT ALERTS (Responsive) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 lg:gap-5 mb-2">
 
-                    <!-- SURVEILLANCE OVERVIEW -->
+                    <!-- SURVEILLANCE OVERVIEW WITH DYNAMIC SYNTHETIC FRAME -->
                     <div class="xl:col-span-4 md:col-span-1 col-span-1 bg-white border border-slate-200/90 rounded-2xl p-4 card-shadow flex flex-col justify-between">
                         <div>
-                            <div class="text-xs font-black text-slate-900 uppercase tracking-tight mb-3">
-                                SURVEILLANCE OVERVIEW <span class="text-[9px] text-slate-400 font-normal">(SIMULATED)</span>
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                    SURVEILLANCE SCENE <span class="text-[9px] text-slate-400 font-normal">(CSV-DERIVED)</span>
+                                </div>
+                                <span class="text-[9px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-bold" id="dashCamIdBadge">CAM-126-02</span>
                             </div>
 
-                            <div class="flex items-center gap-4 mb-3">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 text-lg sm:text-xl flex-shrink-0">
-                                    <i class="fa-solid fa-video"></i>
-                                </div>
-                                <div>
-                                    <span class="text-[9px] text-slate-400 font-bold uppercase block">CAMERA ACTIVITY</span>
-                                    <div class="text-lg sm:text-xl font-black text-slate-900" id="survActivityScore">0.50</div>
-                                    <span class="text-[10px] font-bold" id="survActivityBadge">Moderate</span>
-                                </div>
-                            </div>
+                            <!-- Synthetic Mini Canvas on Overview -->
+                            <canvas id="survSyntheticCanvasMini" width="400" height="190" class="w-full h-36 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 mb-2.5 shadow-inner"></canvas>
 
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Human Count</span>
-                                    <span class="text-sm font-black text-slate-900" id="survHumanCount">4</span>
+                            <div class="grid grid-cols-4 gap-1.5 text-center text-xs mb-1">
+                                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 block uppercase font-bold">Human</span>
+                                    <span class="text-xs font-black text-slate-900" id="survHumanCount">4</span>
                                 </div>
-                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Vehicle Count</span>
-                                    <span class="text-sm font-black text-slate-900" id="survVehicleCount">2</span>
+                                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 block uppercase font-bold">Vehicle</span>
+                                    <span class="text-xs font-black text-slate-900" id="survVehicleCount">2</span>
                                 </div>
-                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Night Shifts</span>
-                                    <span class="text-sm font-black text-slate-900" id="survNightCount">3</span>
+                                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 block uppercase font-bold">Night</span>
+                                    <span class="text-xs font-black text-slate-900" id="survNightCount">3</span>
                                 </div>
-                                <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span class="text-[9px] text-slate-400 block uppercase font-medium">Zone Events</span>
-                                    <span class="text-sm font-black text-slate-900" id="dashSurvZoneEvents">9</span>
+                                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                                    <span class="text-[8px] text-slate-400 block uppercase font-bold">Activity</span>
+                                    <span class="text-xs font-black text-slate-900" id="survActivityScore">0.50</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-2">
-                            <span>Sector: 1,200 events</span>
-                            <span>Dataset-derived</span>
+                        <div class="flex justify-between items-center text-[9px] text-slate-400 pt-2 border-t border-slate-100 mt-1">
+                            <span>Events in zone: <b id="dashSurvZoneEvents" class="text-slate-700">9</b></span>
+                            <span class="font-bold text-amber-600">CSV-Derived • Not Live</span>
                         </div>
                     </div>
 
@@ -717,39 +712,40 @@
                             </div>
 
                             <!-- Illustrative Surveillance Frame -->
-                            <div class="mt-2">
-                                <div class="mb-1.5">
-                                    <div class="text-[10px] font-black text-slate-900 uppercase tracking-tight">ILLUSTRATIVE SURVEILLANCE VISUALIZATION</div>
-                                    <div class="text-[9px] text-slate-500 font-medium">Generated from CSV-derived surveillance features — not an actual camera feed</div>
+                            <!-- Dynamic Synthetic Surveillance Scene -->
+                            <div class="mt-3">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <div>
+                                        <div class="text-[10px] font-black text-slate-900 uppercase tracking-tight">SYNTHETIC SURVEILLANCE SCENE GENERATOR</div>
+                                        <div class="text-[9px] text-slate-500 font-medium">Rendered dynamically from zone CSV event features • FLIR IR/Optical Simulation</div>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded font-bold" id="survCameraIdBadge">CAM-126-02</span>
                                 </div>
-                                <div class="w-full h-44 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800 flex items-center justify-center">
-                                    <div class="absolute inset-0 cctv-scanline opacity-40"></div>
-                                    <div class="bounding-box" style="top: 30%; left: 35%; width: 28px; height: 48px;"><span class="bounding-label">PERSON</span></div>
-                                    <div class="bounding-box" style="top: 35%; left: 55%; width: 58px; height: 38px;"><span class="bounding-label">VEHICLE</span></div>
-                                    <span class="text-[9px] font-mono text-slate-400 absolute bottom-2 left-2">Camera Target Telemetry Overlay</span>
-                                    <span class="text-[9px] font-mono text-amber-400 font-bold absolute bottom-2 right-2">SIMULATED / DATASET-DERIVED</span>
-                                </div>
+                                <canvas id="survSyntheticCanvasFull" width="640" height="320" class="w-full h-56 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner"></canvas>
                             </div>
                         </div>
 
-                        <!-- Camera Timeline Table -->
-                        <div class="lg:col-span-6 col-span-1 p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                            <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA EVENT LOG (SAMPLE)</h3>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-xs text-left min-w-[320px]">
-                                    <thead class="border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase">
-                                        <tr><th class="pb-2">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 text-[11px] text-slate-700">
-                                        <tr><td class="py-2.5 font-mono">11:32:15</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">2 Humans</span></td><td>0.94</td></tr>
-                                        <tr><td class="py-2.5 font-mono">11:15:02</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-bold">1 Vehicle</span></td><td>0.89</td></tr>
-                                        <tr><td class="py-2.5 font-mono">10:48:40</td><td>SGR_ZONE_094</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">3 Humans</span></td><td>0.96</td></tr>
-                                        <tr><td class="py-2.5 font-mono">10:20:11</td><td>SGR_ZONE_001</td><td><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Routine</span></td><td>0.82</td></tr>
-                                    </tbody>
-                                </table>
+                        <!-- Camera Timeline Table (Dynamically updated per selected zone) -->
+                        <div class="lg:col-span-6 col-span-1 p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">CAMERA EVENT LOG <span class="text-[9px] text-slate-400 font-normal">(ZONE-SPECIFIC)</span></h3>
+                                    <span class="text-[9px] font-bold text-slate-500" id="survZoneLogCountBadge">3 Events Detected</span>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs text-left min-w-[320px]">
+                                        <thead class="border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase">
+                                            <tr><th class="pb-2">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
+                                        </thead>
+                                        <tbody id="survEventLogTbody" class="divide-y divide-slate-100 text-[11px] text-slate-700">
+                                            <!-- Populated dynamically via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="text-[9px] text-slate-400 mt-4 pt-2 border-t border-slate-200">
-                                Simulated from CSV surveillance logs • Multi-modal integration validation
+                            <div class="text-[9px] text-slate-400 mt-4 pt-2 border-t border-slate-200 flex justify-between">
+                                <span>Simulated from CSV surveillance logs</span>
+                                <span class="font-bold text-amber-600">Synthetic • Not Live Feed</span>
                             </div>
                         </div>
                     </div>
@@ -2170,11 +2166,68 @@ Sensors (1.5k Readings) ─┘                                          │
                 alertsContainer.innerHTML = alertsList.join('');
             }
 
-            // 6. Surveillance Tab Updates
+            // 6. Surveillance Tab & Overview Canvas Updates
+            const zNum = z.zone_id.replace('SGR_ZONE_', '');
+            const camId = `CAM-${zNum}-02`;
+            if (document.getElementById('dashCamIdBadge')) document.getElementById('dashCamIdBadge').innerText = camId;
+            if (document.getElementById('survCameraIdBadge')) document.getElementById('survCameraIdBadge').innerText = camId;
+
             document.getElementById('survHumanCountFull').innerText = z.camera.human_count;
             document.getElementById('survVehicleCountFull').innerText = z.camera.vehicle_count;
             document.getElementById('survNightCountFull').innerText = z.camera.night_movements;
             document.getElementById('survActivityScoreFull').innerText = z.camera.activity_score.toFixed(2);
+
+            // Render Dynamic Synthetic Surveillance Canvas for Overview and Surveillance Tab
+            renderSyntheticSurveillanceFrame('survSyntheticCanvasMini', z);
+            renderSyntheticSurveillanceFrame('survSyntheticCanvasFull', z);
+
+            // Update Dynamic Camera Event Log Table
+            const logTbody = document.getElementById('survEventLogTbody');
+            if (logTbody) {
+                const logs = [];
+                if (z.camera.human_count > 0) {
+                    logs.push(`
+                        <tr>
+                            <td class="py-2.5 font-mono text-slate-500">11:32:15</td>
+                            <td class="font-bold text-slate-900">${z.zone_id}</td>
+                            <td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold border border-red-200">${z.camera.human_count} Humans</span></td>
+                            <td class="font-mono text-slate-700 font-semibold">0.94</td>
+                        </tr>
+                    `);
+                }
+                if (z.camera.vehicle_count > 0) {
+                    logs.push(`
+                        <tr>
+                            <td class="py-2.5 font-mono text-slate-500">11:15:02</td>
+                            <td class="font-bold text-slate-900">${z.zone_id}</td>
+                            <td><span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-bold border border-orange-200">${z.camera.vehicle_count} Vehicles</span></td>
+                            <td class="font-mono text-slate-700 font-semibold">0.89</td>
+                        </tr>
+                    `);
+                }
+                if (z.camera.night_movements > 0) {
+                    logs.push(`
+                        <tr>
+                            <td class="py-2.5 font-mono text-slate-500">03:44:18</td>
+                            <td class="font-bold text-slate-900">${z.zone_id}</td>
+                            <td><span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-bold border border-amber-200">${z.camera.night_movements} Night Movements</span></td>
+                            <td class="font-mono text-slate-700 font-semibold">0.91</td>
+                        </tr>
+                    `);
+                }
+                logs.push(`
+                    <tr>
+                        <td class="py-2.5 font-mono text-slate-500">08:20:11</td>
+                        <td class="font-bold text-slate-900">${z.zone_id}</td>
+                        <td><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">Routine Sweep</span></td>
+                        <td class="font-mono text-slate-700 font-semibold">0.82</td>
+                    </tr>
+                `);
+                logTbody.innerHTML = logs.join('');
+                if (document.getElementById('survZoneLogCountBadge')) {
+                    document.getElementById('survZoneLogCountBadge').innerText = `${logs.length} Events in Zone`;
+                }
+            }
 
             // 7. Sensors Tab Updates
             setSnsBar('snsMotion', z.sensors.motion, getStatus(z.sensors.motion));
@@ -2360,6 +2413,257 @@ Sensors (1.5k Readings) ─┘                                          │
                     }
                 });
             } catch (e) { console.error(e); }
+        }
+
+        function renderSyntheticSurveillanceFrame(canvasId, z) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Clear
+            ctx.clearRect(0, 0, w, h);
+
+            const isNight = (z.camera.night_movements > 0) || (z.risk_level === 'Critical') || (z.risk_level === 'High');
+            const humanCount = z.camera.human_count || 0;
+            const vehicleCount = z.camera.vehicle_count || 0;
+            const zNum = z.zone_id.replace('SGR_ZONE_', '');
+
+            // 1. Sky & Atmosphere (Night FLIR vs Daylight/Dusk Optical)
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+            if (isNight) {
+                skyGrad.addColorStop(0, '#04120d');
+                skyGrad.addColorStop(0.5, '#0a231b');
+                skyGrad.addColorStop(1, '#071813');
+            } else {
+                skyGrad.addColorStop(0, '#0f172a');
+                skyGrad.addColorStop(0.6, '#1e293b');
+                skyGrad.addColorStop(1, '#334155');
+            }
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Subtle Stars / Thermal Grain
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            for (let i = 0; i < 20; i++) {
+                const sx = (i * 37) % w;
+                const sy = (i * 19) % Math.floor(h * 0.4);
+                ctx.fillRect(sx, sy, 1, 1);
+            }
+
+            // 2. Distant Mountains (Kashmir Ridge Layer 1)
+            ctx.fillStyle = isNight ? '#051610' : '#1e293b';
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.50);
+            ctx.lineTo(w * 0.15, h * 0.38);
+            ctx.lineTo(w * 0.32, h * 0.44);
+            ctx.lineTo(w * 0.48, h * 0.32);
+            ctx.lineTo(w * 0.65, h * 0.42);
+            ctx.lineTo(w * 0.82, h * 0.34);
+            ctx.lineTo(w, h * 0.46);
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+
+            // 3. Middle Mountain Ridge (Layer 2)
+            ctx.fillStyle = isNight ? '#0a261d' : '#334155';
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.60);
+            ctx.lineTo(w * 0.22, h * 0.52);
+            ctx.lineTo(w * 0.45, h * 0.56);
+            ctx.lineTo(w * 0.70, h * 0.49);
+            ctx.lineTo(w * 0.88, h * 0.55);
+            ctx.lineTo(w, h * 0.53);
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+
+            // 4. Foreground Terrain Slope (Layer 3)
+            ctx.fillStyle = isNight ? '#0d3326' : '#1e293b';
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.74);
+            ctx.bezierCurveTo(w * 0.3, h * 0.70, w * 0.6, h * 0.78, w, h * 0.68);
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+            ctx.fill();
+
+            // 5. Pine Trees (🌲 Border Concealment Silhouettes)
+            function drawPineTree(x, y, scale) {
+                ctx.fillStyle = isNight ? '#04110c' : '#0f172a';
+                ctx.beginPath();
+                ctx.fillRect(x - scale * 0.8, y, scale * 1.6, scale * 3);
+                for (let t = 0; t < 3; t++) {
+                    const ty = y - t * scale * 2.8;
+                    const tw = scale * (5 - t);
+                    ctx.moveTo(x, ty - scale * 3.8);
+                    ctx.lineTo(x - tw, ty);
+                    ctx.lineTo(x + tw, ty);
+                }
+                ctx.fill();
+            }
+
+            drawPineTree(w * 0.08, h * 0.68, 2.2);
+            drawPineTree(w * 0.14, h * 0.65, 1.8);
+            drawPineTree(w * 0.28, h * 0.60, 1.4);
+            drawPineTree(w * 0.52, h * 0.62, 1.5);
+            drawPineTree(w * 0.82, h * 0.58, 1.6);
+            drawPineTree(w * 0.90, h * 0.62, 2.0);
+
+            // 6. Spawn Targets Based on Selected Zone CSV Values
+            const humanPositions = [
+                { x: w * 0.38, y: h * 0.70, scale: 1.0, conf: '0.94' },
+                { x: w * 0.62, y: h * 0.74, scale: 1.1, conf: '0.91' },
+                { x: w * 0.22, y: h * 0.76, scale: 0.9, conf: '0.88' },
+                { x: w * 0.78, y: h * 0.72, scale: 1.0, conf: '0.86' },
+                { x: w * 0.48, y: h * 0.78, scale: 1.2, conf: '0.93' }
+            ];
+
+            const vehiclePositions = [
+                { x: w * 0.68, y: h * 0.80, wBox: 64, hBox: 36, conf: '0.89' },
+                { x: w * 0.32, y: h * 0.82, wBox: 58, hBox: 32, conf: '0.85' },
+                { x: w * 0.50, y: h * 0.84, wBox: 60, hBox: 34, conf: '0.87' }
+            ];
+
+            const boxColor = isNight ? '#10b981' : '#22c55e';
+            const thermalCore = isNight ? '#ecfdf5' : '#f8fafc';
+
+            // Draw Human Targets
+            for (let i = 0; i < Math.min(humanCount, humanPositions.length); i++) {
+                const hp = humanPositions[i];
+                const px = hp.x;
+                const py = hp.y;
+                const s = hp.scale;
+
+                // Thermal Silhouette (Person)
+                ctx.fillStyle = thermalCore;
+                ctx.beginPath();
+                ctx.arc(px, py - 26 * s, 3.5 * s, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillRect(px - 3.5 * s, py - 21 * s, 7 * s, 12 * s);
+                ctx.fillRect(px - 3.5 * s, py - 9 * s, 2.8 * s, 11 * s);
+                ctx.fillRect(px + 0.7 * s, py - 9 * s, 2.8 * s, 11 * s);
+
+                // Precision Bounding Box
+                const bw = 24 * s;
+                const bh = 44 * s;
+                const bx = px - bw / 2;
+                const by = py - 32 * s;
+
+                ctx.strokeStyle = boxColor;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(bx, by, bw, bh);
+
+                // Corner ticks
+                const cl = 4;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bx, by + cl); ctx.lineTo(bx, by); ctx.lineTo(bx + cl, by);
+                ctx.moveTo(bx + bw - cl, by); ctx.lineTo(bx + bw, by); ctx.lineTo(bx + bw, by + cl);
+                ctx.moveTo(bx, by + bh - cl); ctx.lineTo(bx, by + bh); ctx.lineTo(bx + cl, by + bh);
+                ctx.moveTo(bx + bw - cl, by + bh); ctx.lineTo(bx + bw, by + bh); ctx.lineTo(bx + bw, by + bh - cl);
+                ctx.stroke();
+
+                // Label Badge
+                ctx.fillStyle = isNight ? 'rgba(6, 78, 59, 0.90)' : 'rgba(15, 23, 42, 0.90)';
+                ctx.fillRect(bx - 1, by - 12, bw + 18, 11);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 8px monospace';
+                ctx.fillText(`PERSON ${hp.conf}`, bx + 2, by - 3);
+            }
+
+            // Draw Vehicle Targets
+            for (let i = 0; i < Math.min(vehicleCount, vehiclePositions.length); i++) {
+                const vp = vehiclePositions[i];
+                const vx = vp.x;
+                const vy = vp.y;
+                const bw = vp.wBox;
+                const bh = vp.hBox;
+                const bx = vx - bw / 2;
+                const by = vy - bh / 2;
+
+                // Thermal Silhouette (Vehicle Chassis & Wheels)
+                ctx.fillStyle = thermalCore;
+                ctx.beginPath();
+                ctx.fillRect(vx - 14, vy - 14, 28, 10);
+                ctx.fillRect(vx - 22, vy - 4, 44, 12);
+                ctx.arc(vx - 14, vy + 9, 3.5, 0, Math.PI * 2);
+                ctx.arc(vx + 14, vy + 9, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Amber Bounding Box
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(bx, by, bw, bh);
+
+                // Label Badge
+                ctx.fillStyle = 'rgba(120, 53, 15, 0.90)';
+                ctx.fillRect(bx - 1, by - 12, bw + 6, 11);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 8px monospace';
+                ctx.fillText(`VEHICLE ${vp.conf}`, bx + 2, by - 3);
+            }
+
+            // Clear Scan status if 0 detections
+            if (humanCount === 0 && vehicleCount === 0) {
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.8)';
+                ctx.font = 'bold 9px monospace';
+                ctx.fillText('SECTOR SCAN: CLEAR [0 TARGETS DETECTED]', w * 0.28, h * 0.52);
+            }
+
+            // 7. Tactical Camera Reticle / Crosshair in Center
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(w / 2, h / 2, 16, 0, Math.PI * 2);
+            ctx.moveTo(w / 2 - 28, h / 2); ctx.lineTo(w / 2 - 18, h / 2);
+            ctx.moveTo(w / 2 + 18, h / 2); ctx.lineTo(w / 2 + 28, h / 2);
+            ctx.moveTo(w / 2, h / 2 - 28); ctx.lineTo(w / 2, h / 2 - 18);
+            ctx.moveTo(w / 2, h / 2 + 18); ctx.lineTo(w / 2, h / 2 + 28);
+            ctx.stroke();
+
+            // Range & Coordinates
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.font = 'bold 8px monospace';
+            ctx.fillText(`RNG: ${Math.round(280 + (z.risk_score * 3.2))}m`, w / 2 + 22, h / 2 + 10);
+            ctx.fillText(`AZ: 042° ELEV: +04°`, w / 2 + 22, h / 2 + 20);
+
+            // 8. OSD Overlays (Top & Bottom Bars)
+            // Top Bar
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.60)';
+            ctx.fillRect(0, 0, w, 20);
+            ctx.fillStyle = '#10b981';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(`● REC [CAM-${zNum}-02]`, 8, 14);
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(`11:32:15 UTC`, w * 0.38, 14);
+            ctx.fillStyle = isNight ? '#34d399' : '#38bdf8';
+            ctx.textAlign = 'right';
+            ctx.fillText(isNight ? 'FLIR THERMAL 8-14µm' : 'OPTICAL COLOR EO', w - 8, 14);
+            ctx.textAlign = 'left';
+
+            // Bottom Bar
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.70)';
+            ctx.fillRect(0, h - 20, w, 20);
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 9px monospace';
+            ctx.fillText(`ZONE: ${z.zone_id} | H:${humanCount} V:${vehicleCount} N:${z.camera.night_movements}`, 8, h - 6);
+
+            // Prominent Defense Watermark Badge
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = 'bold 8px monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(`SYNTHETIC VISUALIZATION • CSV-DERIVED • NOT LIVE`, w - 8, h - 6);
+            ctx.textAlign = 'left';
+
+            // Subtle Scanline Effect
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+            for (let y = 0; y < h; y += 3) {
+                ctx.fillRect(0, y, w, 1);
+            }
         }
 
         function initSensorWaveformChart() {
@@ -2758,10 +3062,17 @@ Sensors (1.5k Readings) ─┘                                          │
             if (targetNav) targetNav.classList.add('nav-btn-active');
 
             if (tabId === 'tab-overview') {
-                setTimeout(() => { if (sectorMapInstance) sectorMapInstance.invalidateSize(); }, 150);
+                setTimeout(() => { 
+                    if (sectorMapInstance) sectorMapInstance.invalidateSize(); 
+                    if (currentZone) renderSyntheticSurveillanceFrame('survSyntheticCanvasMini', currentZone);
+                }, 150);
             } else if (tabId === 'tab-map') {
                 initFullscreenGisMap();
                 setTimeout(() => { if (fullscreenGisMapInstance) fullscreenGisMapInstance.invalidateSize(); }, 150);
+            } else if (tabId === 'tab-surveillance') {
+                setTimeout(() => {
+                    if (currentZone) renderSyntheticSurveillanceFrame('survSyntheticCanvasFull', currentZone);
+                }, 100);
             }
         }
 
