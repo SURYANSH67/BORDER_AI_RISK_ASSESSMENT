@@ -762,70 +762,76 @@
             </div>
 
             <!-- ========================================================================= -->
-            <!-- 4. 📹 SURVEILLANCE INTELLIGENCE -->
+            <!-- 4. 📹 SURVEILLANCE DATA ANALYSIS (DATASET-DERIVED SIMULATION) -->
             <!-- ========================================================================= -->
             <div id="tab-surveillance" class="view-panel hidden flex flex-col gap-5">
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h2 class="text-sm font-black text-slate-900 uppercase">SURVEILLANCE INTELLIGENCE</h2>
-                            <p class="text-xs text-slate-500">Dataset-derived optical/thermal camera detection telemetry across 1,200 events.</p>
+                            <h2 class="text-sm font-black text-slate-900 uppercase">SURVEILLANCE DATA ANALYSIS</h2>
+                            <p class="text-xs text-slate-500">Dataset-derived optical/thermal camera event features across 1,200 simulated events.</p>
                         </div>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold">1,200 EVENTS ANALYZED</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-bold">1,200 DATASET-DERIVED CAMERA EVENTS ANALYZED</span>
                     </div>
 
                     <div class="grid grid-cols-12 gap-5">
                         <!-- Camera Stats -->
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div class="col-span-6 p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
                             <div>
                                 <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA ACTIVITY ANALYSIS</h3>
-                                <div class="grid grid-cols-2 gap-3 text-xs mb-3">
-                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Human Detections</span>
                                         <span class="text-xl font-black text-slate-900" id="survHumanCountFull">12</span>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Vehicle Detections</span>
                                         <span class="text-xl font-black text-slate-900" id="survVehicleCountFull">6</span>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Night Movements</span>
                                         <span class="text-xl font-black text-slate-900" id="survNightCountFull">18</span>
                                     </div>
-                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
                                         <span class="text-[10px] text-slate-400 font-bold block uppercase">Camera Activity Score</span>
                                         <span class="text-xl font-black text-orange-600" id="survActivityScoreFull">0.72</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Illustrative Frame -->
+                            <!-- Illustrative Surveillance Frame -->
                             <div class="mt-2">
-                                <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Illustrative visualization — generated from camera-event features</div>
+                                <div class="mb-1.5">
+                                    <div class="text-[10px] font-black text-slate-900 uppercase tracking-tight">ILLUSTRATIVE SURVEILLANCE VISUALIZATION</div>
+                                    <div class="text-[9px] text-slate-500 font-medium">Generated from CSV-derived surveillance features — not an actual camera feed</div>
+                                </div>
                                 <div class="w-full h-44 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-800 flex items-center justify-center">
                                     <div class="absolute inset-0 cctv-scanline opacity-40"></div>
-                                    <div class="bounding-box" style="top: 30%; left: 35%; width: 25px; height: 45px;"><span class="bounding-label">Person</span></div>
-                                    <div class="bounding-box" style="top: 35%; left: 55%; width: 55px; height: 35px;"><span class="bounding-label">Vehicle</span></div>
+                                    <div class="bounding-box" style="top: 30%; left: 35%; width: 28px; height: 48px;"><span class="bounding-label">PERSON</span></div>
+                                    <div class="bounding-box" style="top: 35%; left: 55%; width: 58px; height: 38px;"><span class="bounding-label">VEHICLE</span></div>
                                     <span class="text-[9px] font-mono text-slate-400 absolute bottom-2 left-2">Camera Target Telemetry Overlay</span>
-                                    <span class="text-[9px] font-mono text-emerald-400 absolute bottom-2 right-2">● Live (Simulated)</span>
+                                    <span class="text-[9px] font-mono text-amber-400 font-bold absolute bottom-2 right-2">SIMULATED / DATASET-DERIVED</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Camera Timeline Table -->
-                        <div class="col-span-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="col-span-6 p-5 bg-slate-50 rounded-2xl border border-slate-200">
                             <h3 class="text-xs font-black text-slate-900 uppercase mb-3">CAMERA EVENT LOG (SAMPLE)</h3>
                             <table class="w-full text-xs text-left">
                                 <thead class="border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase">
-                                    <tr><th class="pb-1.5">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
+                                    <tr><th class="pb-2">Timestamp</th><th>Zone</th><th>Detected Target</th><th>Confidence</th></tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-[11px] text-slate-700">
-                                    <tr><td class="py-2 font-mono">11:32:15</td><td>SGR_ZONE_126</td><td><span class="px-1.5 py-0.5 rounded bg-red-50 text-red-700 font-bold">2 Humans</span></td><td>0.94</td></tr>
-                                    <tr><td class="py-2 font-mono">11:15:02</td><td>SGR_ZONE_126</td><td><span class="px-1.5 py-0.5 rounded bg-orange-50 text-orange-700 font-bold">1 Vehicle</span></td><td>0.89</td></tr>
-                                    <tr><td class="py-2 font-mono">10:48:40</td><td>SGR_ZONE_094</td><td><span class="px-1.5 py-0.5 rounded bg-red-50 text-red-700 font-bold">3 Humans</span></td><td>0.96</td></tr>
-                                    <tr><td class="py-2 font-mono">10:20:11</td><td>SGR_ZONE_001</td><td><span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Routine</span></td><td>0.82</td></tr>
+                                    <tr><td class="py-2.5 font-mono">11:32:15</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">2 Humans</span></td><td>0.94</td></tr>
+                                    <tr><td class="py-2.5 font-mono">11:15:02</td><td>SGR_ZONE_126</td><td><span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-bold">1 Vehicle</span></td><td>0.89</td></tr>
+                                    <tr><td class="py-2.5 font-mono">10:48:40</td><td>SGR_ZONE_094</td><td><span class="px-2 py-0.5 rounded bg-red-50 text-red-700 font-bold">3 Humans</span></td><td>0.96</td></tr>
+                                    <tr><td class="py-2.5 font-mono">10:20:11</td><td>SGR_ZONE_001</td><td><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">Routine</span></td><td>0.82</td></tr>
                                 </tbody>
                             </table>
+                            <div class="text-[9px] text-slate-400 mt-4 pt-2 border-t border-slate-200">
+                                Simulated from CSV surveillance logs • Multi-modal integration validation
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -971,63 +977,112 @@
             <!-- ========================================================================= -->
             <div id="tab-intelligence" class="view-panel hidden flex flex-col gap-5">
                 
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
-                    <h2 class="text-sm font-black text-slate-900 uppercase mb-3">DATA SOURCES INVENTORY</h2>
-                    <div class="grid grid-cols-4 gap-3 text-xs">
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Terrain Geography</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">519,841 points</div>
-                            <span class="text-[10px] text-slate-500">Open-Elevation DEM Grid</span>
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow flex flex-col gap-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-sm font-black text-slate-900 uppercase">DATA SOURCES INVENTORY & CATEGORIZATION</h2>
+                            <p class="text-xs text-slate-500 font-medium">Clear distinction between physical/operational datasets and CSV-derived simulated telemetry.</p>
                         </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Weather & Visibility</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
-                            <span class="text-[10px] text-slate-500">Atmospheric Sensor Logs</span>
+                        <span class="text-[10px] font-black text-slate-700 bg-slate-100 px-3 py-1 rounded-full uppercase">7 MULTI-MODAL SOURCES</span>
+                    </div>
+
+                    <!-- Pipeline Banner -->
+                    <div class="p-3 bg-slate-900 text-white rounded-2xl flex items-center justify-between text-xs font-semibold">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Methodology Pipeline:</span>
+                        <div class="flex items-center gap-2 text-[11px] overflow-x-auto">
+                            <span>Multiple Datasets</span>
+                            <span class="text-slate-500">&rarr;</span>
+                            <span>Standardization</span>
+                            <span class="text-slate-500">&rarr;</span>
+                            <span>Zone-Level Fusion</span>
+                            <span class="text-slate-500">&rarr;</span>
+                            <span class="text-emerald-400 font-bold">ML Risk Prediction</span>
+                            <span class="text-slate-500">&rarr;</span>
+                            <span class="text-blue-400 font-bold">SHAP Explanation</span>
+                            <span class="text-slate-500">&rarr;</span>
+                            <span>Decision Support</span>
                         </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Remote Sensing NDVI</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
-                            <span class="text-[10px] text-slate-500">Multispectral Vegetation</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- 1. Actual Datasets -->
+                        <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">ACTUAL DATASETS (Physical & Operational)</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Terrain Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">519,841 points</div>
+                                    <span class="text-[9px] text-slate-500">Open-Elevation DEM Grid</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Weather Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
+                                    <span class="text-[9px] text-slate-500">Atmospheric Sensor Logs</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Vegetation / NDVI Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">150 Spatial Zones</div>
+                                    <span class="text-[9px] text-slate-500">Sentinel Multispectral</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Patrol Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">1,800 Shift Logs</div>
+                                    <span class="text-[9px] text-slate-500">Sector Shift Records</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200 col-span-2">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Historical Infiltration Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">5,231 Incident Records</div>
+                                    <span class="text-[9px] text-slate-500">Geospatial Event Logbook</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Patrol Shift Logs</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,800 Weekly Logs</div>
-                            <span class="text-[10px] text-slate-500">Sector Shift Records</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Historical Infiltration</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">5,231 Events</div>
-                            <span class="text-[10px] text-slate-500">Incident Event Logbook</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Optical Camera Triggers</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,200 Events</div>
-                            <span class="text-[10px] text-blue-600 font-semibold">Simulated Surveillance</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Sensor Array Telemetry</span>
-                            <div class="text-base font-black text-slate-900 mt-0.5">1,500 Readings</div>
-                            <span class="text-[10px] text-blue-600 font-semibold">Simulated Telemetry</span>
-                        </div>
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="text-slate-400 text-[10px] font-bold block uppercase">Master Fused Matrix</span>
-                            <div class="text-base font-black text-emerald-700 mt-0.5">150 × 48 Matrix</div>
-                            <span class="text-[10px] text-slate-500">Calibrated Risk Target</span>
+
+                        <!-- 2. Simulated / Derived Datasets -->
+                        <div class="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 flex flex-col gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">SIMULATED / DERIVED DATA (From CSV Features)</h3>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Camera Events Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">1,200 Events</div>
+                                    <span class="text-[9px] text-blue-600 font-bold">Simulated from CSV Data</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Sensor Events Dataset</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">1,500 Readings</div>
+                                    <span class="text-[9px] text-blue-600 font-bold">Simulated 6-Sensor Telemetry</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Camera Visualization</span>
+                                    <div class="text-sm font-black text-slate-900 mt-0.5">Illustrative Frame</div>
+                                    <span class="text-[9px] text-slate-500">Rendered from CSV features</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+                                    <span class="text-slate-400 text-[9px] font-bold block uppercase">Master Fused Matrix</span>
+                                    <div class="text-sm font-black text-emerald-700 mt-0.5">150 × 48 Matrix</div>
+                                    <span class="text-[9px] text-emerald-600 font-bold">Calibrated Risk Target</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Fusion Flow Diagram -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-5 card-shadow">
+                <div class="bg-white border border-slate-200/90 rounded-3xl p-6 card-shadow">
                     <h2 class="text-sm font-black text-slate-900 uppercase mb-3">MULTI-MODAL DATA FUSION ARCHITECTURE</h2>
-                    <div class="p-4 bg-slate-950 text-slate-200 rounded-xl font-mono text-xs overflow-x-auto leading-relaxed">
-Terrain (519k pts) ──┐
-Weather (150 zones) ─┤
-Vegetation (NDVI) ───┤
-Patrol (1.8k logs) ──┼───> Zone-Level Feature Fusion ───> Master Dataset (150 Zones × 48 Cols)
-Historical (5.2k) ───┤                                              │
-Camera (1.2k events) ┤                                              ├───> 5-Fold Stratified CV (LR/RF/XGBoost)
-Sensors (1.5k rdgs) ─┘                                              │
+                    <div class="p-4 bg-slate-950 text-slate-200 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed">
+Terrain (519k DEM Pts) ──┐
+Weather (Atmospheric) ───┤
+Vegetation (NDVI) ───────┤
+Patrol Logs (1.8k Shifts)┼───> Spatial Normalization ───> Fused Master Matrix (150 × 48)
+Historical (5.2k Events) ┤                                          │
+Camera (1.2k Triggers) ──┤                                          ├───> Stratified 5-Fold Cross-Validation
+Sensors (1.5k Readings) ─┘                                          │
                                                                     ├───> SHAP TreeExplainer Local/Global Attribution
                                                                     │
                                                                     └───> Decision Engine ───> Human-Readable Intelligence
